@@ -11,8 +11,6 @@ import butterknife.OnClick;
 
 public class GyroscopeActivity extends Activity {
 
-    @BindView(R.id.rotate_button)
-    public Button mRotateButton;
     @BindView(R.id.gyroscope_surface_view)
     public GyroscopeSurfaceView mGyroscopeView;
 
@@ -25,8 +23,4 @@ public class GyroscopeActivity extends Activity {
         mGyroscopeView.setZOrderOnTop(true);
     }
 
-    @OnClick(R.id.rotate_button)
-    public void onRotateButtonClick() {
-        mGyroscopeView.onRotate();
-    }
 }

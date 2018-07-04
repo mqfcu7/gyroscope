@@ -16,7 +16,6 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         mGyroscope = (GyroscopeView) findViewById(R.id.gyroscope_view);
-        mRotateButton = (Button) findViewById(R.id.rotate_button);
         mRotateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
