@@ -1,12 +1,8 @@
 package com.mqfcu7.caisong.gyroscope;
 
-import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.PixelFormat;
-import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.RadialGradient;
 import android.graphics.Rect;
@@ -17,9 +13,6 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.VelocityTracker;
-import android.view.animation.AccelerateDecelerateInterpolator;
-
-import java.util.Random;
 
 public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.Callback, Runnable {
 
@@ -42,18 +35,15 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
     private Line[] mSections = new Line[mSectionsNum];
     private Line mArrowLine = new Line();
     private Line mArrowFlagLine = new Line();
-    private Random mRandom = new Random();
 
     private int mArrowLineWidth;
     private Paint mOuterCirclePaint = new Paint();
     private Paint mInnerCirclePaint = new Paint();
-    private Paint mInnerCircleGradient = new Paint();
     private Paint mSectionLinePaint = new Paint();
     private Paint mArrowPaint = new Paint();
     private Paint mArrowFlagPaint = new Paint();
 
     private int mAnimationValue = 0;
-    AccelerateDecelerateInterpolator mInterpolator = new AccelerateDecelerateInterpolator();
 
     private SurfaceHolder mSurfaceHolder;
     private boolean mIsDrawing;
@@ -101,16 +91,17 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
+        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+        int heightSize = MeasureSpec.getSize(heightMeasureSpec);
 
-        final int wSpecSize = MeasureSpec.getSize(widthMeasureSpec);
-        final int hSpecSize = MeasureSpec.getSize(heightMeasureSpec);
-
-        setMeasuredDimension(wSpecSize, wSpecSize);
+        setMeasuredDimension(widthSize, widthSize);
+        Log.d("TAG", "width: " + widthSize + " height: " + heightSize);
 
         mBoardRect = new Rect(getPaddingLeft(), getPaddingLeft(),
-                wSpecSize - getPaddingRight(),
-                wSpecSize - getPaddingRight());
+                widthSize - getPaddingRight(),
+                widthSize - getPaddingRight());
     }
 
     private void calcSection() {
