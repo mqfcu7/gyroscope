@@ -121,9 +121,23 @@ public class Gyroscope {
         return true;
     }
 
+    public void setSectionsNum(int num) {
+        mSectionsNum = num;
+        mSectionsLine = new Line[mSectionsNum];
+        mSectionsAngle = new float[mSectionsNum];
+        float angle = 360.0f / mSectionsNum;
+        for (int i = 0; i < mSectionsNum; ++ i) {
+            mSectionsLine[i] = new Line();
+            mSectionsAngle[i] = angle;
+        }
+        calcSectionsPosition();
+    }
+
     public int getSectionsNum() {
         return mSectionsNum;
     }
+
+    public float[] getSectionsAngle() { return mSectionsAngle; }
 
     public int getArrowLineWidth() {
         return mArrowLineWidth;
@@ -140,6 +154,8 @@ public class Gyroscope {
     public Line[] getSectionsLine() {
         return mSectionsLine;
     }
+
+    public float getArrowCurrentAngle() { return mArrowCurrentAngle; }
 
     public Circle getOutCircle() {
         Circle circle = new Circle();

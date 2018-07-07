@@ -46,6 +46,7 @@ public class ControlPadFragment extends Fragment {
     @BindView(R.id.game_text)
     TextView mGameText;
 
+    MainAcivity mActivity;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -66,6 +67,10 @@ public class ControlPadFragment extends Fragment {
         unbinder.unbind();
     }
 
+    public void setActivity(MainAcivity activity) {
+        mActivity = activity;
+    }
+
     private void resetUI() {
         mGyroscopeImage.setImageResource(R.drawable.gyroscope);
         mHistoryImage.setImageResource(R.drawable.history);
@@ -82,6 +87,8 @@ public class ControlPadFragment extends Fragment {
     public void onGyroscopeLayoutClick() {
         resetUI();
 
+        mActivity.onGyroscopeFragment();
+
         mGyroscopeImage.setImageResource(R.drawable.gyroscope_active);
         mGyroscopeText.setTextColor(getResources().getColor(R.color.colorControlPadTextActive));
     }
@@ -97,6 +104,8 @@ public class ControlPadFragment extends Fragment {
     @OnClick(R.id.setting_layout)
     public void onSettingLayoutClick() {
         resetUI();
+
+        mActivity.onSettingFragment();
 
         mSettingImage.setImageResource(R.drawable.setting_active);
         mSettingText.setTextColor(getResources().getColor(R.color.colorControlPadTextActive));

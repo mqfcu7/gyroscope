@@ -2,7 +2,7 @@
 <resources>
     <color name="colorPrimary">#5B7CBE</color>
     <color name="colorPrimaryDark">#4D5061</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorAccent">#CAE7B9</color>
     <color name="colorControlPad">#5775B2</color>
     <color name="colorControlPadText">#4B4B4B</color>
     <color name="colorControlPadTextActive">#97DFFC</color>

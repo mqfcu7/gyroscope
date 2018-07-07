@@ -9,6 +9,7 @@ import android.graphics.RadialGradient;
 import android.graphics.Rect;
 import android.graphics.Shader;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -21,6 +22,7 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
 
     private Rect mBoardRect;
     private Gyroscope mGyroscope = new Gyroscope();
+    private Database mDatabase;
 
     private Paint mOuterCirclePaint = new Paint();
     private Paint mInnerCirclePaint = new Paint();
@@ -37,6 +39,7 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
     private Gyroscope.Line mTriggerLine = new Gyroscope.Line();
     private boolean mIsTouchArrow;
     private float mTriggerValue = 1;
+    private boolean mArrowEnable = true;
 
     public GyroscopeSurfaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -82,7 +85,10 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        mGyroscope.init(new PointF(mBoardRect.centerX(), mBoardRect.centerY()), mBoardRect.width() / 2, 5);
+        mDatabase = new Database(getContext());
+        Database.GyroscopeData data = mDatabase.getSettingData();
+        mGyroscope.init(new PointF(mBoardRect.centerX(), mBoardRect.centerY()), mBoardRect.width() / 2,
+                data.sectionsNum, data.sectionsAngle, data.arrowAngle);
 
         RadialGradient gradient = new RadialGradient(10, 10, mBoardRect.width(),
                 new int[]{0xFF8EAEE4, MAIN_COLOR}, null, Shader.TileMode.CLAMP);
@@ -90,7 +96,6 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
 
         mArrowSubPaint.setStrokeWidth(mGyroscope.getArrowLineWidth());
         mArrowFlagPaint.setStrokeWidth(mGyroscope.getArrowLineWidth());
-
         onDrawBoard();
     }
 
@@ -98,7 +103,28 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) { }
 
     @Override
-    public void surfaceDestroyed(SurfaceHolder holder) { }
+    public void surfaceDestroyed(SurfaceHolder holder) {
+        Log.d("TAG", "surfaceDestroyed");
+    }
+
+    public void setArrowEnable(boolean enable) {
+        mArrowEnable = enable;
+    }
+
+    public int getSectionsNum() {
+        return mGyroscope.getSectionsNum();
+    }
+
+    public void setSectionsNum(int num) {
+        if (num == mGyroscope.getSectionsNum()) {
+            return;
+        }
+
+        mGyroscope.setSectionsNum(num);
+        mDatabase.updateSettingData(num, mGyroscope.getSectionsAngle(), Integer.MAX_VALUE);
+
+        onDrawBoard();
+    }
 
     private float rotationInterplate(float x) {
         return (float) (Math.sin(x * Math.PI / 2)) * mTriggerValue;
@@ -151,6 +177,7 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
 
     private void onActionUpAndCancel(PointF point) {
         if (mIsTouchArrow) {
+            mDatabase.updateSettingData(Integer.MAX_VALUE, null, (int)(mGyroscope.getArrowCurrentAngle()));
             mVelocity.computeCurrentVelocity(1000);
             onRotate(new PointF((float) mVelocity.getXVelocity(), (float) mVelocity.getYVelocity()));
         }
@@ -190,6 +217,7 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
             onDrawBoard();
             animationValue += mTriggerOrientation;
         }
+        mDatabase.updateSettingData(Integer.MAX_VALUE, null, (int)(mGyroscope.getArrowCurrentAngle()));
     }
 
     private void onDrawBoard() {
@@ -224,8 +252,10 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
         }
 
         canvas.drawCircle(innerCircle.c.x, innerCircle.c.y, innerCircle.r, mInnerCirclePaint);
-        canvas.drawLine(arrowSubLine.s.x, arrowSubLine.s.y, arrowSubLine.e.x, arrowSubLine.e.y, mArrowSubPaint);
-        canvas.drawLine(arrowFlagLine.s.x, arrowFlagLine.s.y, arrowFlagLine.e.x, arrowFlagLine.e.y, mArrowFlagPaint);
-        canvas.drawCircle(innermostCircle.c.x, innermostCircle.c.y, innermostCircle.r, mOuterCirclePaint);
+        if (mArrowEnable) {
+            canvas.drawLine(arrowSubLine.s.x, arrowSubLine.s.y, arrowSubLine.e.x, arrowSubLine.e.y, mArrowSubPaint);
+            canvas.drawLine(arrowFlagLine.s.x, arrowFlagLine.s.y, arrowFlagLine.e.x, arrowFlagLine.e.y, mArrowFlagPaint);
+            canvas.drawCircle(innermostCircle.c.x, innermostCircle.c.y, innermostCircle.r, mOuterCirclePaint);
+        }
     }
 }
