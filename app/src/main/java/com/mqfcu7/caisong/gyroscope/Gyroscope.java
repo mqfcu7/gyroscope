@@ -4,11 +4,11 @@ import android.graphics.PointF;
 
 public class Gyroscope {
     public static final float EXP = 0.000001f;
+    public static final int INVALID_SELECTED_SECTION = -1;
     private static final int ARROW_START_ANGLE = 290;
     private static final float ARROW_LINE_WIDTH_RATIO = 1.0f / 15;
     private static final float ARROW_FLAG_MARGIN_RATIO = 1.0f / 15;
     private static final float INNER_RADIUS_RATIO = 1.0f / 2;
-    private static final int SECTION_LINE_WIDTH = 3;
 
     public static class Line {
         public PointF s = new PointF();
@@ -34,6 +34,7 @@ public class Gyroscope {
     private int mArrowFlagMargin;
     private float mArrowCurrentAngle;
     private float mArrowStartAngle;
+    private int mSelectedSection = INVALID_SELECTED_SECTION;
 
     public Gyroscope() {}
 
@@ -103,6 +104,7 @@ public class Gyroscope {
     }
 
     public void setStartAngle(float angle) {
+        mSelectedSection = INVALID_SELECTED_SECTION;
         mArrowStartAngle = angle;
         mArrowCurrentAngle = angle;
         calcArrowPosition();
@@ -113,9 +115,11 @@ public class Gyroscope {
         if (sign * mArrowCurrentAngle >= sign * (mArrowStartAngle + angle)) {
             mArrowCurrentAngle %= 360;
             mArrowStartAngle = mArrowCurrentAngle;
+            mSelectedSection = calcSelectedSection(mArrowCurrentAngle);
             return false;
         }
 
+        mSelectedSection = INVALID_SELECTED_SECTION;
         mArrowCurrentAngle = mArrowStartAngle + angle;
         calcArrowPosition();
         return true;
@@ -156,6 +160,10 @@ public class Gyroscope {
     }
 
     public float getArrowCurrentAngle() { return mArrowCurrentAngle; }
+
+    public int getSelectedSection() { return mSelectedSection; }
+
+    public void setSelectedSection(int selectedSection) { mSelectedSection = selectedSection; }
 
     public Circle getOutCircle() {
         Circle circle = new Circle();
@@ -288,5 +296,17 @@ public class Gyroscope {
 
     private float getVectorNorm(PointF v) {
         return (float)Math.sqrt(v.x * v.x + v.y * v.y);
+    }
+
+    private int calcSelectedSection(float angle) {
+        angle = (angle - (90 - mSectionsAngle[0] / 2) + 360) % 360;
+        float acc = 0;
+        for (int i = 0; i < mSectionsNum; ++ i) {
+            acc += mSectionsAngle[i];
+            if (acc > angle) {
+                return i;
+            }
+        }
+        return mSectionsNum - 1;
     }
 }

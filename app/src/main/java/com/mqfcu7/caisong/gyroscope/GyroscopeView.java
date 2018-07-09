@@ -12,68 +12,34 @@ import android.graphics.Shader;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AccelerateInterpolator;
 
 import java.util.ArrayList;
 import java.util.Random;
 
 public class GyroscopeView extends View {
 
-    private static final int SECTION_START_ANGLE = 270;
-    private static final int ARROW_START_ANGLE = SECTION_START_ANGLE + 20;
-    private static final int ARROW_LINE_WIDTH = 30;
-    private static final int ARROW_FLAG_MARGIN = 20;
-    private static final double INNER_RADIUS_RATIO = 1.0 / 4;
+    private static final int SECTION_LINE_WIDTH = 3;
 
+    Gyroscope mGyroscope = new Gyroscope();
+    Database.GyroscopeData mGyroscopeData;
+    PaintContainer mPaints = new PaintContainer();
     private Rect mBoardRect;
-    private PointF[][] mSection;
-    private int mSectionNum = 5;
-    private PointF[] mArrowLine;
-    private PointF[] mArrowFlagLine;
-    private int mArrowAnimationAngle;
+    private ArrayList<Integer> mColors = new ArrayList<>();
     private Random mRandom = new Random();
-
-    private Paint mOuterCirclePaint;
-    private Paint mInnerCirclePaint;
-    private Paint mSectionLinePaint;
-    private Paint mArrowPaint;
-    private Paint mArrowFlagPaint;
-
-    private ValueAnimator mArrowAnimator;
-
+    private int mColorIndex;
 
     public GyroscopeView(Context context) {this(context, null);}
 
     public GyroscopeView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        mOuterCirclePaint = new Paint();
-        mInnerCirclePaint = new Paint();
-        mSectionLinePaint = new Paint();
-        mArrowPaint = new Paint();
-        mArrowFlagPaint = new Paint();
-
-        //RadialGradient innerLg = new RadialGradient(0.2f, 0.2f, 0.1f, 0xFFFFFFFF, 0xFF202C50, Shader.TileMode.MIRROR);
-
-        mOuterCirclePaint.setColor(0xFFFFFFFF);
-        mOuterCirclePaint.setAntiAlias(true);
-        mInnerCirclePaint.setColor(0xFF202C50);
-        mInnerCirclePaint.setAntiAlias(true);
-        //mInnerCirclePaint.setShader(innerLg);
-        mSectionLinePaint.setColor(0xFF1D2744);
-        mSectionLinePaint.setAntiAlias(true);
-        mSectionLinePaint.setStrokeWidth(3);
-        mArrowPaint.setColor(0xFFFFFFFF);
-        mArrowPaint.setAntiAlias(true);
-        mArrowPaint.setStrokeWidth(ARROW_LINE_WIDTH);
-        mArrowFlagPaint.setColor(0xFFFF0000);
-        mArrowFlagPaint.setAntiAlias(true);
-        mArrowFlagPaint.setStrokeWidth(ARROW_LINE_WIDTH);
-
-        mArrowAnimationAngle = 0;
-
-        mArrowAnimator = new ValueAnimator();
+        mColors.add(0xAACAE7B9);
+        mColors.add(0xAAF3DE8A);
+        mColors.add(0xAA5D5179);
+        mColors.add(0xAAA2FAA3);
+        mColors.add(0xAADE6449);
+        mColors.add(0xAAE3B505);
+        mColorIndex = mRandom.nextInt(mColors.size());
     }
 
     @Override
@@ -83,87 +49,71 @@ public class GyroscopeView extends View {
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
         int heightSize = MeasureSpec.getSize(heightMeasureSpec);
 
-        int width = widthSize;
-        int height = width;
+        int size = widthSize;
+        if (heightMode == MeasureSpec.EXACTLY) {
+            size = heightSize;
+        }
 
-        setMeasuredDimension(width, height);
+        setMeasuredDimension(size, size);
 
         mBoardRect = new Rect(getPaddingLeft(), getPaddingLeft(),
-                width - getPaddingRight(),
-                width - getPaddingRight());
-        Log.d("TAG", mBoardRect.toString());
+                size - getPaddingRight(),
+                size - getPaddingRight());
     }
 
-    private void calcArrow(int angle) {
-        Point center = new Point(mBoardRect.centerX(), mBoardRect.centerY());
-        mArrowLine[0] = new PointF(center.x, center.y);
-        mArrowLine[1] = new PointF(
-                (float) (Math.cos(Math.toRadians(ARROW_START_ANGLE + angle)) * mBoardRect.width() / 2 + center.x),
-                (float) (Math.sin(Math.toRadians(ARROW_START_ANGLE + angle)) * mBoardRect.width() / 2 + center.y));
-
-        mArrowFlagLine[0] = new PointF(
-                (float) (Math.cos(Math.toRadians(ARROW_START_ANGLE + angle)) * mBoardRect.width() * INNER_RADIUS_RATIO + center.x),
-                (float) (Math.sin(Math.toRadians(ARROW_START_ANGLE + angle)) * mBoardRect.width() * INNER_RADIUS_RATIO + center.y));
-        mArrowFlagLine[1] = new PointF(
-                (float) (Math.cos(Math.toRadians(ARROW_START_ANGLE + angle)) * (mBoardRect.width() / 2 - ARROW_FLAG_MARGIN) + center.x),
-                (float) (Math.sin(Math.toRadians(ARROW_START_ANGLE + angle)) * (mBoardRect.width() / 2 - ARROW_FLAG_MARGIN) + center.y));
-
+    public void setGyroscopeData(Database.GyroscopeData data) {
+        mGyroscopeData = data;
     }
+
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        Point center = new Point(mBoardRect.centerX(), mBoardRect.centerY());
-        mSection = new PointF[mSectionNum][2];
+        mGyroscope.init(new PointF(mBoardRect.centerX(), mBoardRect.centerY()), mBoardRect.width() / 2,
+                mGyroscopeData.sectionsNum, mGyroscopeData.sectionsAngle, mGyroscopeData.arrowAngle);
+        mGyroscope.setSelectedSection(mGyroscopeData.selectedSection);
 
-        double step = 360.0 / mSectionNum;
-        for (int i = 0; i < mSectionNum; ++ i) {
-            mSection[i][0] = new PointF(center.x, center.y);
-            double angle = Math.toRadians(step * i + SECTION_START_ANGLE);
-            mSection[i][1] = new PointF(
-                    (float) (Math.cos(angle) * mBoardRect.width() / 2 + center.x),
-                    (float) (Math.sin(angle) * mBoardRect.width() / 2 + center.y));
-        }
+        RadialGradient gradient = new RadialGradient(10, 10, mBoardRect.width(),
+                new int[]{0xFF8EAEE4, PaintContainer.MAIN_COLOR}, null, Shader.TileMode.CLAMP);
+        mPaints.mInnerCirclePaint.setShader(gradient);
 
-        mArrowLine = new PointF[2];
-        mArrowFlagLine = new PointF[2];
-        calcArrow(0);
-    }
-
-    private void drawSection(Canvas canvas) {
-        for (int i = 0; i < mSectionNum; ++ i) {
-            canvas.drawLine(mSection[i][0].x, mSection[i][0].y,
-                    mSection[i][1].x, mSection[i][1].y, mSectionLinePaint);
-        }
+        mPaints.mSectionLinePaint.setStrokeWidth(SECTION_LINE_WIDTH);
+        mPaints.mArrowSubPaint.setStrokeWidth(mGyroscope.getArrowLineWidth());
+        mPaints.mArrowFlagPaint.setStrokeWidth(mGyroscope.getArrowLineWidth());
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        canvas.drawCircle(mBoardRect.centerX(), mBoardRect.centerY(), mBoardRect.width() / 2, mOuterCirclePaint);
-        drawSection(canvas);
-        canvas.drawCircle(mBoardRect.centerX(), mBoardRect.centerY(), mBoardRect.width() / 4, mInnerCirclePaint);
-        canvas.drawLine(mArrowLine[0].x, mArrowLine[0].y, mArrowLine[1].x, mArrowLine[1].y, mArrowPaint);
-        canvas.drawLine(mArrowFlagLine[0].x, mArrowFlagLine[0].y, mArrowFlagLine[1].x, mArrowFlagLine[1].y, mArrowFlagPaint);
-        canvas.drawCircle(mBoardRect.centerX(), mBoardRect.centerY(), mBoardRect.width() / 20, mOuterCirclePaint);
-    }
+        Gyroscope.Circle outCircle = mGyroscope.getOutCircle();
+        Gyroscope.Circle innerCircle = mGyroscope.getInnerCircle();
+        Gyroscope.Circle innermostCircle = mGyroscope.getInnermostCircle();
+        Gyroscope.Line[] sectionsLine = mGyroscope.getSectionsLine();
+        Gyroscope.Line arrowSubLine = mGyroscope.getArrowSubLine();
+        Gyroscope.Line arrowFlagLine = mGyroscope.getArrowFlagLine();
+        int selectedSection = mGyroscope.getSelectedSection();
+        float[] sectionsAngle = mGyroscope.getSectionsAngle();
 
-    public void onRotateArrow() {
-        if (mArrowAnimator.isRunning()) {
-            return;
+        canvas.drawCircle(outCircle.c.x, outCircle.c.y, outCircle.r, mPaints.mOuterCirclePaint);
+        for (int i = 0; i < mGyroscope.getSectionsNum(); ++ i) {
+            canvas.drawLine(sectionsLine[i].s.x, sectionsLine[i].s.y,
+                    sectionsLine[i].e.x, sectionsLine[i].e.y, mPaints.mSectionLinePaint);
         }
 
-        mArrowAnimator.setDuration(10000);
-        mArrowAnimator.setIntValues(0, 360 * 10 + mRandom.nextInt(360));
-        mArrowAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                mArrowAnimationAngle = (int)animation.getAnimatedValue();
-                calcArrow(mArrowAnimationAngle);
-                invalidate();
+        if (selectedSection != Gyroscope.INVALID_SELECTED_SECTION) {
+            float start = 90 - sectionsAngle[0] / 2;
+            for (int i = 1; i <= selectedSection; ++ i) {
+                start = (start + sectionsAngle[i-1]) % 360;
             }
-        });
-        mArrowAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-        mArrowAnimator.start();
+            mPaints.mSectionPaint.setColor(mColors.get(mColorIndex));
+            canvas.drawArc(mBoardRect.left, mBoardRect.top, mBoardRect.right, mBoardRect.bottom,
+                    start, sectionsAngle[selectedSection], true, mPaints.mSectionPaint);
+        }
+        canvas.drawCircle(innerCircle.c.x, innerCircle.c.y, innerCircle.r, mPaints.mInnerCirclePaint);
+        /*
+        canvas.drawLine(arrowSubLine.s.x, arrowSubLine.s.y, arrowSubLine.e.x, arrowSubLine.e.y, mPaints.mArrowSubPaint);
+        canvas.drawLine(arrowFlagLine.s.x, arrowFlagLine.s.y, arrowFlagLine.e.x, arrowFlagLine.e.y, mPaints.mArrowFlagPaint);
+        canvas.drawCircle(innermostCircle.c.x, innermostCircle.c.y, innermostCircle.r, mPaints.mOuterCirclePaint);
+        */
     }
 }

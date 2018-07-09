@@ -8,6 +8,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.provider.BaseColumns;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Database extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "gyroscope";
     private static final String TABLE_HISTORY_NAME = "history";
@@ -15,13 +18,13 @@ public class Database extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
 
-    public class GyroscopeData {
+    public static class GyroscopeData {
         public int sectionsNum;
         public float[] sectionsAngle;
         public String[] sectionsName;
-        public int arrowAngle;
-        public int selectedSection;
-        public int time;
+        public float arrowAngle;
+        public int selectedSection = Gyroscope.INVALID_SELECTED_SECTION;
+        public long time;
         public String location;
     }
 
@@ -61,9 +64,9 @@ public class Database extends SQLiteOpenHelper {
                 + HistoryColumns.SECTIONS_NUM + " integer,"
                 + HistoryColumns.SECTIONS_ANGLE + " text,"
                 + HistoryColumns.SECTIONS_NAME + " text,"
-                + HistoryColumns.ARROW_ANGLE + " integer,"
+                + HistoryColumns.ARROW_ANGLE + " real,"
                 + HistoryColumns.SELECTED_SECTION + " integer,"
-                + HistoryColumns.TIME + " integer,"
+                + HistoryColumns.TIME + " int,"
                 + HistoryColumns.LOCATION + " text"
                 + ");");
     }
@@ -74,7 +77,7 @@ public class Database extends SQLiteOpenHelper {
                 + SettingColumns.SECTIONS_NUM + " integer,"
                 + SettingColumns.SECTIONS_ANGLE + " text,"
                 + SettingColumns.SECTIONS_NAME + " text,"
-                + SettingColumns.ARROW_ANGLE + " integer"
+                + SettingColumns.ARROW_ANGLE + " real"
                 + ");");
 
         db.execSQL("insert into " + TABLE_SETTING_NAME + " values(0,6,'60,60,60,60,60,60','',290);");
@@ -100,7 +103,7 @@ public class Database extends SQLiteOpenHelper {
                 result.sectionsNum = c.getInt(c.getColumnIndex(SettingColumns.SECTIONS_NUM));
                 result.sectionsAngle = parseSectionsAngle(c.getString(c.getColumnIndex(SettingColumns.SECTIONS_ANGLE)));
                 result.sectionsName = parseSectionsName(c.getString(c.getColumnIndex(SettingColumns.SECTIONS_NAME)));
-                result.arrowAngle = c.getInt(c.getColumnIndex(SettingColumns.ARROW_ANGLE));
+                result.arrowAngle = c.getFloat(c.getColumnIndex(SettingColumns.ARROW_ANGLE));
             }
         } finally {
             if (c != null) {
@@ -111,20 +114,13 @@ public class Database extends SQLiteOpenHelper {
         return result;
     }
 
-    public void updateSettingData(int sectionsNum, float[] sectionsAngle, int arrowAngle) {
+    public void updateSettingData(int sectionsNum, float[] sectionsAngle, float arrowAngle) {
         ContentValues values = new ContentValues();
         if (sectionsNum != Integer.MAX_VALUE) {
             values.put(SettingColumns.SECTIONS_NUM, sectionsNum);
         }
         if (sectionsAngle != null) {
-            String angles = "";
-            for (int i = 0; i < sectionsNum; ++ i) {
-                angles += String.valueOf(sectionsAngle[i]);
-                if (i < sectionsNum - 1) {
-                    angles += ",";
-                }
-            }
-            values.put(SettingColumns.SECTIONS_ANGLE, angles);
+            values.put(SettingColumns.SECTIONS_ANGLE, serializeSectionAngle(sectionsAngle));
         }
         if (arrowAngle != Integer.MAX_VALUE) {
             values.put(SettingColumns.ARROW_ANGLE, arrowAngle);
@@ -132,6 +128,49 @@ public class Database extends SQLiteOpenHelper {
 
         SQLiteDatabase db = getWritableDatabase();
         db.update(TABLE_SETTING_NAME, values, SettingColumns._ID + "=0", null);
+    }
+
+    public void saveGyroscope(GyroscopeData data) {
+        ContentValues values = new ContentValues();
+        values.put(HistoryColumns.SECTIONS_NUM, data.sectionsNum);
+        values.put(HistoryColumns.SECTIONS_ANGLE, serializeSectionAngle(data.sectionsAngle));
+        values.put(HistoryColumns.ARROW_ANGLE, data.arrowAngle);
+        values.put(HistoryColumns.SELECTED_SECTION, data.selectedSection);
+        values.put(HistoryColumns.TIME, data.time);
+        values.put(HistoryColumns.LOCATION, data.location);
+
+        SQLiteDatabase db = getWritableDatabase();
+        db.insert(TABLE_HISTORY_NAME, HistoryColumns._ID, values);
+    }
+
+    public List<GyroscopeData> getAllHistoryGyroscope() {
+        List<GyroscopeData> result = new ArrayList<>();
+
+        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+        qb.setTables(TABLE_HISTORY_NAME);
+
+        Cursor c = null;
+        try {
+            SQLiteDatabase db = getReadableDatabase();
+            c = qb.query(db, null, null, null, null, null, null);
+            while (c.moveToNext()) {
+                GyroscopeData data = new GyroscopeData();
+                data.sectionsNum = c.getInt(c.getColumnIndex(HistoryColumns.SECTIONS_NUM));
+                data.sectionsAngle = parseSectionsAngle(c.getString(c.getColumnIndex(HistoryColumns.SECTIONS_ANGLE)));
+                data.sectionsName = parseSectionsName(c.getString(c.getColumnIndex(HistoryColumns.SECTIONS_NAME)));
+                data.arrowAngle = c.getFloat(c.getColumnIndex(HistoryColumns.ARROW_ANGLE));
+                data.selectedSection = c.getInt(c.getColumnIndex(HistoryColumns.SELECTED_SECTION));
+                data.time = c.getLong(c.getColumnIndex(HistoryColumns.TIME));
+                data.location = c.getString(c.getColumnIndex(HistoryColumns.LOCATION));
+                result.add(0, data);
+            }
+        } finally {
+            if (c != null) {
+                c.close();
+            }
+        }
+
+        return result;
     }
 
     private float[] parseSectionsAngle(String data) {
@@ -144,6 +183,20 @@ public class Database extends SQLiteOpenHelper {
     }
 
     private String[] parseSectionsName(String data) {
+        if (data == null) {
+            return null;
+        }
         return data.split(",");
+    }
+
+    private String serializeSectionAngle(float[] angles) {
+        String result = "";
+         for (int i = 0; i < angles.length; ++ i) {
+            result += String.valueOf(angles[i]);
+            if (i < angles.length - 1) {
+                result += ",";
+            }
+        }
+        return result;
     }
 }

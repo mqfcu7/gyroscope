@@ -23,13 +23,9 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
     private Rect mBoardRect;
     private Gyroscope mGyroscope = new Gyroscope();
     private Database mDatabase;
+    private Database.GyroscopeData mGyroscopeData;
 
-    private Paint mOuterCirclePaint = new Paint();
-    private Paint mInnerCirclePaint = new Paint();
-    private Paint mSectionLinePaint = new Paint();
-    private Paint mArrowSubPaint = new Paint();
-    private Paint mArrowFlagPaint = new Paint();
-
+    private PaintContainer mPaints = new PaintContainer();
     private SurfaceHolder mSurfaceHolder;
 
     private int mTriggerOrientation = 1;
@@ -49,24 +45,6 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
         setFocusable(true);
         setFocusableInTouchMode(true);
         this.setKeepScreenOn(true);
-
-        mOuterCirclePaint.setColor(Color.WHITE);
-        mOuterCirclePaint.setAntiAlias(true);
-
-        mInnerCirclePaint.setColor(MAIN_COLOR);
-        mInnerCirclePaint.setAntiAlias(true);
-
-        mSectionLinePaint.setColor(MAIN_COLOR);
-        mSectionLinePaint.setAntiAlias(true);
-        mSectionLinePaint.setStrokeWidth(SECTION_LINE_WIDTH);
-
-        mArrowSubPaint.setColor(Color.WHITE);
-        mArrowSubPaint.setAntiAlias(true);
-        mArrowSubPaint.setShadowLayer(20, 4, 4, 0x50000000);
-
-        mArrowFlagPaint.setColor(Color.RED);
-        mArrowFlagPaint.setAntiAlias(true);
-        mArrowFlagPaint.setShadowLayer(20, 4, 4, 0x50000000);
     }
 
     @Override
@@ -76,26 +54,37 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
         int heightSize = MeasureSpec.getSize(heightMeasureSpec);
 
-        setMeasuredDimension(widthSize, widthSize);
+        int size = widthSize;
+        if (heightMode == MeasureSpec.EXACTLY) {
+            size = heightSize;
+        }
+
+        setMeasuredDimension(size, size);
 
         mBoardRect = new Rect(getPaddingLeft(), getPaddingLeft(),
-                widthSize - getPaddingRight(),
-                widthSize - getPaddingRight());
+                size - getPaddingRight(),
+                size - getPaddingRight());
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        mDatabase = new Database(getContext());
-        Database.GyroscopeData data = mDatabase.getSettingData();
+        if (mGyroscopeData == null) {
+            mDatabase = new Database(getContext());
+            mGyroscopeData = mDatabase.getSettingData();
+        }
         mGyroscope.init(new PointF(mBoardRect.centerX(), mBoardRect.centerY()), mBoardRect.width() / 2,
-                data.sectionsNum, data.sectionsAngle, data.arrowAngle);
+                mGyroscopeData.sectionsNum, mGyroscopeData.sectionsAngle, mGyroscopeData.arrowAngle);
+        if (mGyroscopeData.selectedSection != Gyroscope.INVALID_SELECTED_SECTION) {
+            mGyroscope.setSelectedSection(mGyroscopeData.selectedSection);
+        }
 
         RadialGradient gradient = new RadialGradient(10, 10, mBoardRect.width(),
                 new int[]{0xFF8EAEE4, MAIN_COLOR}, null, Shader.TileMode.CLAMP);
-        mInnerCirclePaint.setShader(gradient);
+        mPaints.mInnerCirclePaint.setShader(gradient);
 
-        mArrowSubPaint.setStrokeWidth(mGyroscope.getArrowLineWidth());
-        mArrowFlagPaint.setStrokeWidth(mGyroscope.getArrowLineWidth());
+        mPaints.mSectionLinePaint.setStrokeWidth(SECTION_LINE_WIDTH);
+        mPaints.mArrowSubPaint.setStrokeWidth(mGyroscope.getArrowLineWidth());
+        mPaints.mArrowFlagPaint.setStrokeWidth(mGyroscope.getArrowLineWidth());
         onDrawBoard();
     }
 
@@ -105,6 +94,10 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         Log.d("TAG", "surfaceDestroyed");
+    }
+
+    public void setGyroscopeData(Database.GyroscopeData data) {
+        mGyroscopeData = data;
     }
 
     public void setArrowEnable(boolean enable) {
@@ -209,15 +202,26 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
     @Override
     public void run() {
         int animationValue = mTriggerOrientation;
-        while (true) {
+        boolean running = true;
+        while (running) {
             int angle = (int)(rotationInterplate(animationValue * 3 / 360.0f) * 3600);
             if (angle == 0 || !mGyroscope.updateArrowAngle(angle)) {
-                break;
+                running = false;
             }
             onDrawBoard();
             animationValue += mTriggerOrientation;
         }
+
         mDatabase.updateSettingData(Integer.MAX_VALUE, null, (int)(mGyroscope.getArrowCurrentAngle()));
+
+        Database.GyroscopeData data = new Database.GyroscopeData();
+        data.sectionsNum = mGyroscope.getSectionsNum();
+        data.sectionsAngle = mGyroscope.getSectionsAngle();
+        data.selectedSection = mGyroscope.getSelectedSection();
+        data.arrowAngle = (int)mGyroscope.getArrowCurrentAngle();
+        data.time = System.currentTimeMillis();
+        data.location = "";
+        mDatabase.saveGyroscope(data);
     }
 
     private void onDrawBoard() {
@@ -244,18 +248,28 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
         Gyroscope.Line[] sectionsLine = mGyroscope.getSectionsLine();
         Gyroscope.Line arrowSubLine = mGyroscope.getArrowSubLine();
         Gyroscope.Line arrowFlagLine = mGyroscope.getArrowFlagLine();
+        int selectedSection = mGyroscope.getSelectedSection();
+        float[] sectionsAngle = mGyroscope.getSectionsAngle();
 
-        canvas.drawCircle(outCircle.c.x, outCircle.c.y, outCircle.r, mOuterCirclePaint);
-        for(int i = 0; i < mGyroscope.getSectionsNum(); ++ i) {
+        canvas.drawCircle(outCircle.c.x, outCircle.c.y, outCircle.r, mPaints.mOuterCirclePaint);
+        for (int i = 0; i < mGyroscope.getSectionsNum(); ++ i) {
             canvas.drawLine(sectionsLine[i].s.x, sectionsLine[i].s.y,
-                    sectionsLine[i].e.x, sectionsLine[i].e.y, mSectionLinePaint);
+                    sectionsLine[i].e.x, sectionsLine[i].e.y, mPaints.mSectionLinePaint);
         }
-
-        canvas.drawCircle(innerCircle.c.x, innerCircle.c.y, innerCircle.r, mInnerCirclePaint);
+        if (selectedSection != Gyroscope.INVALID_SELECTED_SECTION) {
+            float start = 90 - sectionsAngle[0] / 2;
+            for (int i = 1; i <= selectedSection; ++ i) {
+                start = (start + sectionsAngle[i-1]) % 360;
+            }
+            Log.d("TAG", "section: " + selectedSection + " start: " + start + " angle: " + sectionsAngle[selectedSection]);
+            canvas.drawArc(mBoardRect.left, mBoardRect.top, mBoardRect.right, mBoardRect.bottom,
+                    start, sectionsAngle[selectedSection], true, mPaints.mSectionPaint);
+        }
+        canvas.drawCircle(innerCircle.c.x, innerCircle.c.y, innerCircle.r, mPaints.mInnerCirclePaint);
         if (mArrowEnable) {
-            canvas.drawLine(arrowSubLine.s.x, arrowSubLine.s.y, arrowSubLine.e.x, arrowSubLine.e.y, mArrowSubPaint);
-            canvas.drawLine(arrowFlagLine.s.x, arrowFlagLine.s.y, arrowFlagLine.e.x, arrowFlagLine.e.y, mArrowFlagPaint);
-            canvas.drawCircle(innermostCircle.c.x, innermostCircle.c.y, innermostCircle.r, mOuterCirclePaint);
+            canvas.drawLine(arrowSubLine.s.x, arrowSubLine.s.y, arrowSubLine.e.x, arrowSubLine.e.y, mPaints.mArrowSubPaint);
+            canvas.drawLine(arrowFlagLine.s.x, arrowFlagLine.s.y, arrowFlagLine.e.x, arrowFlagLine.e.y, mPaints.mArrowFlagPaint);
+            canvas.drawCircle(innermostCircle.c.x, innermostCircle.c.y, innermostCircle.r, mPaints.mOuterCirclePaint);
         }
     }
 }

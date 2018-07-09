@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="40dp"
+        android:layout_marginVertical="10dp"
+        android:orientation="horizontal">
+
+        <com.mqfcu7.caisong.gyroscope.GyroscopeView
+            android:id="@+id/history_gyroscope_view"
+            android:layout_width="wrap_content"
+            android:layout_height="70dp" />
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="30dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/history_title_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:textSize="30dp"
+                android:textColor="#FFFFFF" />
+
+            <TextView
+                android:id="@+id/history_desc_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:textColor="#FFFFFF" />
+
+        </RelativeLayout>
+
+
+    </LinearLayout>
+
+    <com.mqfcu7.caisong.gyroscope.SpliterLineView
+        android:layout_width="match_parent"
+        android:layout_height="1dp" />
+
+</LinearLayout>

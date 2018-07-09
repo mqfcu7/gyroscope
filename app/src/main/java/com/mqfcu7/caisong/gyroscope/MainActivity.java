@@ -11,12 +11,14 @@ import android.util.Log;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainAcivity extends FragmentActivity {
+public class MainActivity extends FragmentActivity {
 
     ControlPadFragment mControlPad;
 
     Fragment mGyroscopeFragment;
+    Fragment mHistoryFragment;
     Fragment mSettingFragment;
+    Fragment mGameFragment;
     Fragment mCurrentFragment;
 
     @Override
@@ -58,6 +60,19 @@ public class MainAcivity extends FragmentActivity {
         mCurrentFragment = mGyroscopeFragment;
     }
 
+    public void onHistoryFragment() {
+        if (mCurrentFragment == mHistoryFragment) {
+            return;
+        }
+
+        mHistoryFragment = new HistoryFragment();
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction transaction = fm.beginTransaction();
+        transaction.replace(R.id.main_container, mHistoryFragment);
+        transaction.commit();
+        mCurrentFragment = mHistoryFragment;
+    }
+
     public void onSettingFragment() {
         if (mCurrentFragment == mSettingFragment) {
             return;
@@ -71,4 +86,16 @@ public class MainAcivity extends FragmentActivity {
         mCurrentFragment = mSettingFragment;
     }
 
+    public void onGameFragment() {
+        if (mCurrentFragment == mGameFragment) {
+            return;
+        }
+
+        mGameFragment = new GameFragment();
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction transaction = fm.beginTransaction();
+        transaction.replace(R.id.main_container, mGameFragment);
+        transaction.commit();
+        mCurrentFragment = mGameFragment;
+    }
 }

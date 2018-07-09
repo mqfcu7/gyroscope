@@ -46,7 +46,7 @@ public class ControlPadFragment extends Fragment {
     @BindView(R.id.game_text)
     TextView mGameText;
 
-    MainAcivity mActivity;
+    MainActivity mActivity;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -67,7 +67,7 @@ public class ControlPadFragment extends Fragment {
         unbinder.unbind();
     }
 
-    public void setActivity(MainAcivity activity) {
+    public void setActivity(MainActivity activity) {
         mActivity = activity;
     }
 
@@ -97,6 +97,8 @@ public class ControlPadFragment extends Fragment {
     public void onHistoryLayoutClick() {
         resetUI();
 
+        mActivity.onHistoryFragment();
+
         mHistoryImage.setImageResource(R.drawable.history_active);
         mHistoryText.setTextColor(getResources().getColor(R.color.colorControlPadTextActive));
     }
@@ -114,6 +116,8 @@ public class ControlPadFragment extends Fragment {
     @OnClick(R.id.game_layout)
     public void onGameLayoutClick() {
         resetUI();
+
+        mActivity.onGameFragment();
 
         mGameImage.setImageResource(R.drawable.game_active);
         mGameText.setTextColor(getResources().getColor(R.color.colorControlPadTextActive));
