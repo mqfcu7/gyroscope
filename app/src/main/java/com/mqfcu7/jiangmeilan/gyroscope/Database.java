@@ -1,4 +1,4 @@
-package com.mqfcu7.caisong.gyroscope;
+package com.mqfcu7.jiangmeilan.gyroscope;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Database extends SQLiteOpenHelper {
-    private static final String DATABASE_NAME = "gyroscope";
+    private static final String DATABASE_NAME = "com.mqfcu7.jiangmeilan.gyroscope";
     private static final String TABLE_HISTORY_NAME = "history";
     private static final String TABLE_SETTING_NAME = "setting";
     private static final String TABLE_GAME_NAME = "game";

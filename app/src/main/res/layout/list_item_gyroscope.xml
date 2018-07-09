@@ -12,7 +12,7 @@
         android:layout_marginVertical="10dp"
         android:orientation="horizontal">
 
-        <com.mqfcu7.caisong.gyroscope.GyroscopeView
+        <com.mqfcu7.jiangmeilan.gyroscope.GyroscopeView
             android:id="@+id/history_gyroscope_view"
             android:layout_width="wrap_content"
             android:layout_height="70dp" />
@@ -43,7 +43,7 @@
 
     </LinearLayout>
 
-    <com.mqfcu7.caisong.gyroscope.SpliterLineView
+    <com.mqfcu7.jiangmeilan.gyroscope.SpliterLineView
         android:layout_width="match_parent"
         android:layout_height="1dp" />
 

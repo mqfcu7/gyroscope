@@ -1,6 +1,5 @@
-package com.mqfcu7.caisong.gyroscope;
+package com.mqfcu7.jiangmeilan.gyroscope;
 
-import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;

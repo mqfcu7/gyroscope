@@ -27,7 +27,7 @@
 
     </RelativeLayout>
 
-    <com.mqfcu7.caisong.gyroscope.GyroscopeSurfaceView
+    <com.mqfcu7.jiangmeilan.gyroscope.GyroscopeSurfaceView
         android:id="@+id/game_gyroscope_surface_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

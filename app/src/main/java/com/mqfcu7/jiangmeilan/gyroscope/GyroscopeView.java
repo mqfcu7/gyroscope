@@ -1,16 +1,13 @@
-package com.mqfcu7.caisong.gyroscope;
+package com.mqfcu7.jiangmeilan.gyroscope;
 
-import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.RadialGradient;
 import android.graphics.Rect;
 import android.graphics.Shader;
+import android.os.Build;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -100,7 +97,7 @@ public class GyroscopeView extends View {
                     sectionsLine[i].e.x, sectionsLine[i].e.y, mPaints.mSectionLinePaint);
         }
 
-        if (selectedSection != Gyroscope.INVALID_SELECTED_SECTION) {
+        if (selectedSection != Gyroscope.INVALID_SELECTED_SECTION && Build.VERSION.SDK_INT >= 21) {
             float start = 90 - sectionsAngle[0] / 2;
             for (int i = 1; i <= selectedSection; ++ i) {
                 start = (start + sectionsAngle[i-1]) % 360;
@@ -110,10 +107,10 @@ public class GyroscopeView extends View {
                     start, sectionsAngle[selectedSection], true, mPaints.mSectionPaint);
         }
         canvas.drawCircle(innerCircle.c.x, innerCircle.c.y, innerCircle.r, mPaints.mInnerCirclePaint);
-        /*
-        canvas.drawLine(arrowSubLine.s.x, arrowSubLine.s.y, arrowSubLine.e.x, arrowSubLine.e.y, mPaints.mArrowSubPaint);
-        canvas.drawLine(arrowFlagLine.s.x, arrowFlagLine.s.y, arrowFlagLine.e.x, arrowFlagLine.e.y, mPaints.mArrowFlagPaint);
-        canvas.drawCircle(innermostCircle.c.x, innermostCircle.c.y, innermostCircle.r, mPaints.mOuterCirclePaint);
-        */
+        if (Build.VERSION.SDK_INT < 21) {
+            canvas.drawLine(arrowSubLine.s.x, arrowSubLine.s.y, arrowSubLine.e.x, arrowSubLine.e.y, mPaints.mArrowSubPaint);
+            canvas.drawLine(arrowFlagLine.s.x, arrowFlagLine.s.y, arrowFlagLine.e.x, arrowFlagLine.e.y, mPaints.mArrowFlagPaint);
+            canvas.drawCircle(innermostCircle.c.x, innermostCircle.c.y, innermostCircle.r, mPaints.mOuterCirclePaint);
+        }
     }
 }

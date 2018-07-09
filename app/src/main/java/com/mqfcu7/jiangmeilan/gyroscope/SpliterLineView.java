@@ -1,4 +1,4 @@
-package com.mqfcu7.caisong.gyroscope;
+package com.mqfcu7.jiangmeilan.gyroscope;
 
 import android.content.Context;
 import android.graphics.Canvas;

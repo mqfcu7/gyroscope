@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <com.mqfcu7.caisong.gyroscope.SpliterLineView
+    <com.mqfcu7.jiangmeilan.gyroscope.SpliterLineView
         android:layout_width="match_parent"
         android:layout_height="1dp"
         />

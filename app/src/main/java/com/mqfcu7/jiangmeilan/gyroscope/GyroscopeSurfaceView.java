@@ -1,4 +1,4 @@
-package com.mqfcu7.caisong.gyroscope;
+package com.mqfcu7.jiangmeilan.gyroscope;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -8,6 +8,7 @@ import android.graphics.PointF;
 import android.graphics.RadialGradient;
 import android.graphics.Rect;
 import android.graphics.Shader;
+import android.os.Build;
 import android.os.Message;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -291,13 +292,15 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
             canvas.drawLine(sectionsLine[i].s.x, sectionsLine[i].s.y,
                     sectionsLine[i].e.x, sectionsLine[i].e.y, mPaints.mSectionLinePaint);
         }
-        if (selectedSection != Gyroscope.INVALID_SELECTED_SECTION) {
-            float start = 90 - sectionsAngle[0] / 2;
-            for (int i = 1; i <= selectedSection; ++ i) {
-                start = (start + sectionsAngle[i-1]) % 360;
+        if (Build.VERSION.SDK_INT >= 21) {
+            if (selectedSection != Gyroscope.INVALID_SELECTED_SECTION) {
+                float start = 90 - sectionsAngle[0] / 2;
+                for (int i = 1; i <= selectedSection; ++i) {
+                    start = (start + sectionsAngle[i - 1]) % 360;
+                }
+                canvas.drawArc(mBoardRect.left, mBoardRect.top, mBoardRect.right, mBoardRect.bottom,
+                        start, sectionsAngle[selectedSection], true, mPaints.mSectionPaint);
             }
-            canvas.drawArc(mBoardRect.left, mBoardRect.top, mBoardRect.right, mBoardRect.bottom,
-                    start, sectionsAngle[selectedSection], true, mPaints.mSectionPaint);
         }
         drawSectionsName(canvas);
         canvas.drawCircle(innerCircle.c.x, innerCircle.c.y, innerCircle.r, mPaints.mInnerCirclePaint);

@@ -1,4 +1,4 @@
-package com.mqfcu7.caisong.gyroscope;
+package com.mqfcu7.jiangmeilan.gyroscope;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.mqfcu7.caisong.gyroscope", appContext.getPackageName());
+        assertEquals("com.mqfcu7.com.mqfcu7.jiangmeilan.com.mqfcu7.jiangmeilan.gyroscope", appContext.getPackageName());
     }
 }
