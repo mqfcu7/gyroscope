@@ -40,6 +40,7 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
     private boolean mRecordEnable = true;
 
     private GameFragment mGameFragment;
+    private ControlPadFragment mControlPad;
 
     public GyroscopeSurfaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -97,6 +98,10 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
+    }
+
+    public void setControlPad(ControlPadFragment controlPad) {
+        mControlPad = controlPad;
     }
 
     public void setGyroscopeData(Database.GyroscopeData data) {
@@ -216,6 +221,7 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
 
     @Override
     public void run() {
+        mControlPad.setEnable(false);
         int animationValue = mTriggerOrientation;
         boolean running = true;
         while (running) {
@@ -246,6 +252,7 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
                 int factor = (int)(60.f / sectionsAngle[mGyroscope.getSelectedSection()]);
                 factor = factor > 2 ? factor : 0;
                 gameData.score = gameData.score - cash + (cash * factor);
+                if (gameData.score == 0) gameData.score = 1000;
             } else {
                 gameData.score = Integer.MAX_VALUE;
             }
@@ -258,6 +265,7 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
                 mGameFragment.handler.sendMessage(msg);
             }
         }
+        mControlPad.setEnable(true);
     }
 
     private void onDrawBoard() {
@@ -321,7 +329,7 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
         float density = getContext().getResources().getDisplayMetrics().density;
         Paint paint = new Paint();
         paint.setAntiAlias(true);
-        paint.setTextSize((int) (17*density+0.5));
+        paint.setTextSize((int) (12*density+0.5));
         float startAngle = 90 + diff;
         float total = 0;
         for (int i = 0; i < mGyroscopeData.sectionsNum; ++ i) {

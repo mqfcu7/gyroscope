@@ -18,6 +18,12 @@ public class GyroscopeFragment extends Fragment {
     @BindView(R.id.gyroscope_surface_view)
     GyroscopeSurfaceView mGyroscope;
 
+    ControlPadFragment mControlPad;
+
+    public void setControlPad(ControlPadFragment controlPad) {
+        mControlPad = controlPad;
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -25,6 +31,7 @@ public class GyroscopeFragment extends Fragment {
         unbinder = ButterKnife.bind(this, v);
 
         mGyroscope.setZOrderOnTop(true);
+        mGyroscope.setControlPad(mControlPad);
 
         return v;
     }

@@ -14,10 +14,10 @@ public class MainActivity extends FragmentActivity {
 
     ControlPadFragment mControlPad;
 
-    Fragment mGyroscopeFragment;
-    Fragment mHistoryFragment;
-    Fragment mSettingFragment;
-    Fragment mGameFragment;
+    GyroscopeFragment mGyroscopeFragment;
+    HistoryFragment mHistoryFragment;
+    SettingFragment mSettingFragment;
+    GameFragment mGameFragment;
     Fragment mCurrentFragment;
 
     @Override
@@ -40,6 +40,7 @@ public class MainActivity extends FragmentActivity {
             Fragment fragment = fm.findFragmentById(R.id.main_container);
             if (fragment == null) {
                 mGyroscopeFragment = new GyroscopeFragment();
+                mGyroscopeFragment.setControlPad(mControlPad);
                 fm.beginTransaction().add(R.id.main_container, mGyroscopeFragment).commit();
                 mCurrentFragment = mGyroscopeFragment;
             }
@@ -52,6 +53,7 @@ public class MainActivity extends FragmentActivity {
         }
 
         mGyroscopeFragment = new GyroscopeFragment();
+        mGyroscopeFragment.setControlPad(mControlPad);
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction transaction = fm.beginTransaction();
         transaction.replace(R.id.main_container, mGyroscopeFragment);
@@ -91,6 +93,7 @@ public class MainActivity extends FragmentActivity {
         }
 
         mGameFragment = new GameFragment();
+        mGameFragment.setControlPad(mControlPad);
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction transaction = fm.beginTransaction();
         transaction.replace(R.id.main_container, mGameFragment);

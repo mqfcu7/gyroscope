@@ -15,7 +15,7 @@
         <com.mqfcu7.jiangmeilan.gyroscope.GyroscopeView
             android:id="@+id/history_gyroscope_view"
             android:layout_width="wrap_content"
-            android:layout_height="70dp" />
+            android:layout_height="50dp" />
 
         <RelativeLayout
             android:layout_width="wrap_content"
@@ -28,7 +28,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
-                android:textSize="30dp"
+                android:textSize="25dp"
                 android:textColor="#FFFFFF" />
 
             <TextView

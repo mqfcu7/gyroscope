@@ -31,6 +31,7 @@ public class GameFragment extends Fragment {
     TextView mCashText;
 
     Database mDatabase;
+    ControlPadFragment mControlPad;
 
     public Handler handler = new Handler() {
         public void handleMessage(Message msg) {
@@ -42,6 +43,10 @@ public class GameFragment extends Fragment {
         }
     };
 
+    public void setControlPad(ControlPadFragment controlPad) {
+        mControlPad = controlPad;
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -52,6 +57,7 @@ public class GameFragment extends Fragment {
         mGyroscope.setRecordEnable(false);
         mGyroscope.setZOrderOnTop(true);
         mGyroscope.setGameFragment(this);
+        mGyroscope.setControlPad(mControlPad);
         mGyroscope.setGyroscopeData(initGyroscopeData());
 
         Database.GameData gameData = mDatabase.getGameData();
@@ -93,6 +99,7 @@ public class GameFragment extends Fragment {
     }
 
     public void onUpdateGameState(int score, int cash) {
+        if (score == Integer.MAX_VALUE) return;
         mScoreText.setText("奖金：" + comdify(String.valueOf(score)));
         mCashText.setText("押注：" + comdify(String.valueOf(cash)));
     }
