@@ -15,17 +15,23 @@ public class Database extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "gyroscope";
     private static final String TABLE_HISTORY_NAME = "history";
     private static final String TABLE_SETTING_NAME = "setting";
+    private static final String TABLE_GAME_NAME = "game";
 
     private static final int DATABASE_VERSION = 1;
 
     public static class GyroscopeData {
         public int sectionsNum;
         public float[] sectionsAngle;
-        public String[] sectionsName;
+        public String[] sectionsName = null;
         public float arrowAngle;
         public int selectedSection = Gyroscope.INVALID_SELECTED_SECTION;
         public long time;
         public String location;
+    }
+
+    public static class GameData {
+        public float arrowAngle;
+        public int score;
     }
 
     private Context mContext;
@@ -47,6 +53,11 @@ public class Database extends SQLiteOpenHelper {
         public static final String ARROW_ANGLE = "arrow_angle";
     }
 
+    private abstract class GameColumns implements BaseColumns {
+        public static final String ARROW_ANGLE = "arrow_angle";
+        public static final String SCORE = "score";
+    }
+
     public Database(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         mContext = context;
@@ -56,6 +67,7 @@ public class Database extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         createHistoryTable(db);
         createSettingTable(db);
+        createGameTable(db);
     }
 
     private void createHistoryTable(SQLiteDatabase db) {
@@ -81,6 +93,16 @@ public class Database extends SQLiteOpenHelper {
                 + ");");
 
         db.execSQL("insert into " + TABLE_SETTING_NAME + " values(0,6,'60,60,60,60,60,60','',290);");
+    }
+
+    private void createGameTable(SQLiteDatabase db) {
+        db.execSQL("create table " + TABLE_GAME_NAME + " ("
+                + GameColumns._ID + " integer primary key,"
+                + GameColumns.ARROW_ANGLE + " real,"
+                + GameColumns.SCORE + " integer"
+                + ");");
+
+        db.execSQL("insert into " + TABLE_GAME_NAME + " values(0,290,1000);");
     }
 
     @Override
@@ -171,6 +193,41 @@ public class Database extends SQLiteOpenHelper {
         }
 
         return result;
+    }
+
+    public GameData getGameData() {
+        GameData result = null;
+
+        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+        qb.setTables(TABLE_GAME_NAME);
+
+        Cursor c = null;
+        try {
+            SQLiteDatabase db = getReadableDatabase();
+            c = qb.query(db, null, null, null, null, null, null);
+            if (c.moveToFirst()) {
+                result = new GameData();
+                result.arrowAngle = c.getFloat(c.getColumnIndex(GameColumns.ARROW_ANGLE));
+                result.score = c.getInt(c.getColumnIndex(GameColumns.SCORE));
+            }
+        } finally {
+            if (c != null) {
+                c.close();
+            }
+        }
+
+        return result;
+    }
+
+    public void updateGameData(float arrowAngle, int score) {
+        ContentValues values = new ContentValues();
+        values.put(GameColumns.ARROW_ANGLE, arrowAngle);
+        if (score != Integer.MAX_VALUE) {
+            values.put(GameColumns.SCORE, score);
+        }
+
+        SQLiteDatabase db = getWritableDatabase();
+        db.update(TABLE_GAME_NAME, values, GameColumns._ID + "=0", null);
     }
 
     private float[] parseSectionsAngle(String data) {

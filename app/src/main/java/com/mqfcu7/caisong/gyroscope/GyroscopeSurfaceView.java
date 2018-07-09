@@ -8,8 +8,8 @@ import android.graphics.PointF;
 import android.graphics.RadialGradient;
 import android.graphics.Rect;
 import android.graphics.Shader;
+import android.os.Message;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -36,6 +36,9 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
     private boolean mIsTouchArrow;
     private float mTriggerValue = 1;
     private boolean mArrowEnable = true;
+    private boolean mRecordEnable = true;
+
+    private GameFragment mGameFragment;
 
     public GyroscopeSurfaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -45,6 +48,7 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
         setFocusable(true);
         setFocusableInTouchMode(true);
         this.setKeepScreenOn(true);
+        mDatabase = new Database(getContext());
     }
 
     @Override
@@ -69,7 +73,6 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         if (mGyroscopeData == null) {
-            mDatabase = new Database(getContext());
             mGyroscopeData = mDatabase.getSettingData();
         }
         mGyroscope.init(new PointF(mBoardRect.centerX(), mBoardRect.centerY()), mBoardRect.width() / 2,
@@ -93,7 +96,6 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-        Log.d("TAG", "surfaceDestroyed");
     }
 
     public void setGyroscopeData(Database.GyroscopeData data) {
@@ -102,6 +104,10 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
 
     public void setArrowEnable(boolean enable) {
         mArrowEnable = enable;
+    }
+
+    public void setRecordEnable(boolean enable) {
+        mRecordEnable = enable;
     }
 
     public int getSectionsNum() {
@@ -117,6 +123,10 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
         mDatabase.updateSettingData(num, mGyroscope.getSectionsAngle(), Integer.MAX_VALUE);
 
         onDrawBoard();
+    }
+
+    public void setGameFragment(GameFragment gameFragment) {
+        mGameFragment = gameFragment;
     }
 
     private float rotationInterplate(float x) {
@@ -170,7 +180,11 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
 
     private void onActionUpAndCancel(PointF point) {
         if (mIsTouchArrow) {
-            mDatabase.updateSettingData(Integer.MAX_VALUE, null, (int)(mGyroscope.getArrowCurrentAngle()));
+            if (mRecordEnable) {
+                mDatabase.updateSettingData(Integer.MAX_VALUE, null, mGyroscope.getArrowCurrentAngle());
+            } else {
+                mDatabase.updateGameData(mGyroscope.getArrowCurrentAngle(), Integer.MAX_VALUE);
+            }
             mVelocity.computeCurrentVelocity(1000);
             onRotate(new PointF((float) mVelocity.getXVelocity(), (float) mVelocity.getYVelocity()));
         }
@@ -212,16 +226,37 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
             animationValue += mTriggerOrientation;
         }
 
-        mDatabase.updateSettingData(Integer.MAX_VALUE, null, (int)(mGyroscope.getArrowCurrentAngle()));
+        if (mRecordEnable) {
+            mDatabase.updateSettingData(Integer.MAX_VALUE, null, mGyroscope.getArrowCurrentAngle());
 
-        Database.GyroscopeData data = new Database.GyroscopeData();
-        data.sectionsNum = mGyroscope.getSectionsNum();
-        data.sectionsAngle = mGyroscope.getSectionsAngle();
-        data.selectedSection = mGyroscope.getSelectedSection();
-        data.arrowAngle = (int)mGyroscope.getArrowCurrentAngle();
-        data.time = System.currentTimeMillis();
-        data.location = "";
-        mDatabase.saveGyroscope(data);
+            Database.GyroscopeData data = new Database.GyroscopeData();
+            data.sectionsNum = mGyroscope.getSectionsNum();
+            data.sectionsAngle = mGyroscope.getSectionsAngle();
+            data.selectedSection = mGyroscope.getSelectedSection();
+            data.arrowAngle = (int) mGyroscope.getArrowCurrentAngle();
+            data.time = System.currentTimeMillis();
+            data.location = "";
+            mDatabase.saveGyroscope(data);
+        } else {
+            Database.GameData gameData = mDatabase.getGameData();
+            float[] sectionsAngle = mGyroscope.getSectionsAngle();
+            int cash = Math.min(gameData.score, 100);
+            if (mGyroscope.getSelectedSection() != Gyroscope.INVALID_SELECTED_SECTION) {
+                int factor = (int)(60.f / sectionsAngle[mGyroscope.getSelectedSection()]);
+                factor = factor > 2 ? factor : 0;
+                gameData.score = gameData.score - cash + (cash * factor);
+            } else {
+                gameData.score = Integer.MAX_VALUE;
+            }
+            mDatabase.updateGameData(mGyroscope.getArrowCurrentAngle(), gameData.score);
+            if (mGameFragment != null) {
+                Message msg = new Message();
+                msg.what = GameFragment.UPDATE_TEXT;
+                msg.arg1 = gameData.score;
+                msg.arg2 = Math.min(gameData.score, 100);
+                mGameFragment.handler.sendMessage(msg);
+            }
+        }
     }
 
     private void onDrawBoard() {
@@ -261,15 +296,44 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
             for (int i = 1; i <= selectedSection; ++ i) {
                 start = (start + sectionsAngle[i-1]) % 360;
             }
-            Log.d("TAG", "section: " + selectedSection + " start: " + start + " angle: " + sectionsAngle[selectedSection]);
             canvas.drawArc(mBoardRect.left, mBoardRect.top, mBoardRect.right, mBoardRect.bottom,
                     start, sectionsAngle[selectedSection], true, mPaints.mSectionPaint);
         }
+        drawSectionsName(canvas);
         canvas.drawCircle(innerCircle.c.x, innerCircle.c.y, innerCircle.r, mPaints.mInnerCirclePaint);
         if (mArrowEnable) {
             canvas.drawLine(arrowSubLine.s.x, arrowSubLine.s.y, arrowSubLine.e.x, arrowSubLine.e.y, mPaints.mArrowSubPaint);
             canvas.drawLine(arrowFlagLine.s.x, arrowFlagLine.s.y, arrowFlagLine.e.x, arrowFlagLine.e.y, mPaints.mArrowFlagPaint);
             canvas.drawCircle(innermostCircle.c.x, innermostCircle.c.y, innermostCircle.r, mPaints.mOuterCirclePaint);
         }
+
+    }
+
+    private void drawSectionsName(Canvas canvas) {
+        if (mGyroscopeData.sectionsName == null || mGyroscopeData.sectionsName.length != mGyroscopeData.sectionsNum) {
+            return;
+        }
+
+        final float diff = 3;
+        float density = getContext().getResources().getDisplayMetrics().density;
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setTextSize((int) (17*density+0.5));
+        float startAngle = 90 + diff;
+        float total = 0;
+        for (int i = 0; i < mGyroscopeData.sectionsNum; ++ i) {
+            canvas.rotate(startAngle, mBoardRect.centerX(), mBoardRect.centerY());
+            total += startAngle;
+            if (mGyroscopeData.sectionsName[i].compareTo("x 0") == 0) {
+                paint.setColor(Color.BLACK);
+            } else {
+                paint.setColor(Color.BLUE);
+            }
+            canvas.drawText(mGyroscopeData.sectionsName[i], mBoardRect.centerX() + mBoardRect.width() / 4 + 20, mBoardRect.centerY(), paint);
+            if (i < mGyroscopeData.sectionsNum - 1) {
+                startAngle = mGyroscopeData.sectionsAngle[i] / 2 + mGyroscopeData.sectionsAngle[i+1] / 2;
+            }
+        }
+        canvas.rotate(-total, mBoardRect.centerX(), mBoardRect.centerY());
     }
 }

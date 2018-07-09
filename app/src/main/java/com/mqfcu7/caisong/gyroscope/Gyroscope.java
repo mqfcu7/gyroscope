@@ -71,10 +71,10 @@ public class Gyroscope {
     }
 
     private void calcSectionsPosition() {
-        float angle = 0;
+        float angle = 90 - mSectionsAngle[0] / 2;
         for (int i = 0; i < mSectionsNum; ++ i) {
             mSectionsLine[i].s.set(mCenter);
-            double radian = Math.toRadians(mSectionsAngle[0] / 2 + angle + 90);
+            double radian = Math.toRadians(angle);
             mSectionsLine[i].e.set(
                     (float)(Math.cos(radian) * mRadius + mCenter.x),
                     (float)(Math.sin(radian) * mRadius + mCenter.y));
