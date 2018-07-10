@@ -30,10 +30,10 @@
 
             <ImageView
                 android:id="@+id/gyroscope_image"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="7dp"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginTop="7dp"
+                android:layout_marginBottom="5dp"
                 android:background="@color/colorControlPad"
                 android:layout_gravity="center"
                 android:scaleType="centerInside"
@@ -63,10 +63,10 @@
 
             <ImageView
                 android:id="@+id/history_image"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="7dp"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginTop="7dp"
+                android:layout_marginBottom="5dp"
                 android:background="@color/colorControlPad"
                 android:layout_gravity="center"
                 android:scaleType="centerInside"
@@ -94,10 +94,10 @@
             android:orientation="vertical">
             <ImageView
                 android:id="@+id/setting_image"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="7dp"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginTop="7dp"
+                android:layout_marginBottom="5dp"
                 android:background="@color/colorControlPad"
                 android:layout_gravity="center"
                 android:scaleType="centerInside"
@@ -126,10 +126,10 @@
 
             <ImageView
                 android:id="@+id/game_image"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="7dp"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginTop="7dp"
+                android:layout_marginBottom="5dp"
                 android:background="@color/colorControlPad"
                 android:layout_gravity="center"
                 android:scaleType="centerInside"
