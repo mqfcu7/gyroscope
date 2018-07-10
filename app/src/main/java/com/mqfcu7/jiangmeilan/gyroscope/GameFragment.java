@@ -89,12 +89,12 @@ public class GameFragment extends Fragment {
 
     private String sectionName(float angle) {
         if (angle == 120) {
-            return "x 0";
+            return "0";
         }
         if (FACTOR % angle == 0 && FACTOR / angle > 2) {
             return "x " + (int)(FACTOR / angle);
         } else {
-            return "x 0";
+            return "0";
         }
     }
 

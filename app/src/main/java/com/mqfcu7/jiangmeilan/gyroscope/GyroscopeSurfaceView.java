@@ -325,22 +325,24 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
             return;
         }
 
-        final float diff = 3;
+        final float diff = 2;
         float density = getContext().getResources().getDisplayMetrics().density;
         Paint paint = new Paint();
         paint.setAntiAlias(true);
         paint.setTextSize((int) (12*density+0.5));
+        paint.setStrokeWidth(SECTION_LINE_WIDTH);
+        paint.setShadowLayer(5, 2, 2, 0x50000000);
         float startAngle = 90 + diff;
         float total = 0;
         for (int i = 0; i < mGyroscopeData.sectionsNum; ++ i) {
             canvas.rotate(startAngle, mBoardRect.centerX(), mBoardRect.centerY());
             total += startAngle;
-            if (mGyroscopeData.sectionsName[i].compareTo("x 0") == 0) {
+            if (mGyroscopeData.sectionsName[i].compareTo("0") == 0) {
                 paint.setColor(Color.BLACK);
             } else {
                 paint.setColor(Color.BLUE);
             }
-            canvas.drawText(mGyroscopeData.sectionsName[i], mBoardRect.centerX() + mBoardRect.width() / 4 + 20, mBoardRect.centerY(), paint);
+            canvas.drawText(mGyroscopeData.sectionsName[i], mBoardRect.centerX() + mBoardRect.width() / 4 + 40, mBoardRect.centerY(), paint);
             if (i < mGyroscopeData.sectionsNum - 1) {
                 startAngle = mGyroscopeData.sectionsAngle[i] / 2 + mGyroscopeData.sectionsAngle[i+1] / 2;
             }
