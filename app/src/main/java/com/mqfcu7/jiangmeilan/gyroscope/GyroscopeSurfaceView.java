@@ -11,6 +11,7 @@ import android.graphics.Shader;
 import android.os.Build;
 import android.os.Message;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -135,6 +136,10 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
         mGameFragment = gameFragment;
     }
 
+    public boolean isRotating() {
+        return mRotateThread != null && mRotateThread.isAlive();
+    }
+
     private float rotationInterplate(float x) {
         return (float) (Math.sin(x * Math.PI / 2)) * mTriggerValue;
         //return (float) ((Math.tanh(x * Math.PI / 2 * 5)) * 0.699 * mTriggerValue);
@@ -199,7 +204,7 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
         mVelocity.recycle();
     }
 
-    private void onRotate(PointF accelerate) {
+    public void onRotate(PointF accelerate) {
         if (mRotateThread != null && mRotateThread.isAlive()) {
             return;
         }
@@ -215,6 +220,20 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
             return;
         }
 
+        mRotateThread = new Thread(this);
+        mRotateThread.start();
+    }
+
+    public void onRotate(float force) {
+        mTriggerValue = force;
+        mTriggerOrientation = 1;
+        if (Math.abs(mTriggerValue) < mGyroscope.EXP) {
+            return;
+        }
+
+        if (mRotateThread != null && mRotateThread.isAlive()) {
+            return;
+        }
         mRotateThread = new Thread(this);
         mRotateThread.start();
     }

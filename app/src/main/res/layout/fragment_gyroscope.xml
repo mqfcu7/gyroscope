@@ -1,17 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
-    <com.mqfcu7.jiangmeilan.gyroscope.GyroscopeSurfaceView
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:orientation="vertical">
+
+        <com.mqfcu7.jiangmeilan.gyroscope.GyroscopeSurfaceView
         android:id="@+id/gyroscope_surface_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:clickable="true"
         android:paddingHorizontal="40dp"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="70dp"
         />
+    </LinearLayout>
 
-</LinearLayout>
+    <LinearLayout
+        android:id="@+id/rotate_button_layout"
+        android:layout_width="match_parent"
+        android:layout_height="180dp"
+        android:layout_alignParentBottom="true"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <com.dd.CircularProgressButton
+            android:id="@+id/rotate_button"
+            android:layout_width="90dp"
+            android:layout_height="48dp"
+            android:textColor="@color/cpb_white"
+            android:textSize="15dp"
+            app:cpb_textIdle="点 击 下 方"
+            app:cpb_colorIndicator="@color/cpb_green"
+            app:cpb_colorIndicatorBackground="@color/cpb_grey"
+            app:cpb_colorProgress="@color/cpb_white"
+            />
+
+    </LinearLayout>
+
+</RelativeLayout>
