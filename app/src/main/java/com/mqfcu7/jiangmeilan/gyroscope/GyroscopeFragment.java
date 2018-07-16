@@ -62,9 +62,11 @@ public class GyroscopeFragment extends Fragment {
     @OnTouch({R.id.rotate_button, R.id.rotate_button_layout})
     public boolean onRotateTouch(View v, MotionEvent e) {
         if (e.getAction() == MotionEvent.ACTION_DOWN) {
+            Log.d("TAG", "ACTION_DOWN");
             if (mGyroscope.isRotating()) {
                 return true;
             }
+            Log.d("TAG", "setProgress");
             mRotateButton.setProgress(1);
             mScheduledExecutor = Executors.newSingleThreadScheduledExecutor();
             mScheduledExecutor.scheduleWithFixedDelay(new Runnable() {
@@ -78,6 +80,7 @@ public class GyroscopeFragment extends Fragment {
                 }
             }, 0, 20, TimeUnit.MILLISECONDS);
         } else if (e.getAction() == MotionEvent.ACTION_UP || e.getAction() == MotionEvent.ACTION_CANCEL) {
+            Log.d("TAG", "ACTION_UP");
             if (mScheduledExecutor != null) {
                 mScheduledExecutor.shutdownNow();
                 mScheduledExecutor = null;
@@ -93,6 +96,9 @@ public class GyroscopeFragment extends Fragment {
         @Override
         public void handleMessage(Message msg) {
             if (mRotateButton.getProgress() < 99) {
+                if (mRotateButton.getProgress() == 0) {
+                    return;
+                }
                 mRotateButton.setProgress(mRotateButton.getProgress() + 1);
             }
         }

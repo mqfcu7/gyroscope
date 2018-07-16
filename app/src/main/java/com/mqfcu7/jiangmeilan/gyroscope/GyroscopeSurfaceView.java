@@ -63,7 +63,7 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
 
         int size = widthSize;
         if (heightMode == MeasureSpec.EXACTLY) {
-            size = heightSize;
+            size = Math.min(widthSize, heightSize);
         }
 
         setMeasuredDimension(size, size);

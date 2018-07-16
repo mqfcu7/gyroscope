@@ -1,31 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:orientation="vertical">
+        android:layout_height="0dp"
+        android:layout_weight="7" >
 
         <com.mqfcu7.jiangmeilan.gyroscope.GyroscopeSurfaceView
         android:id="@+id/gyroscope_surface_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
         android:clickable="true"
-        android:paddingHorizontal="40dp"
-        android:layout_marginTop="70dp"
+        android:paddingHorizontal="30dp"
         />
-    </LinearLayout>
+    </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/rotate_button_layout"
         android:layout_width="match_parent"
-        android:layout_height="180dp"
-        android:layout_alignParentBottom="true"
+        android:layout_height="0dp"
+        android:layout_weight="3"
         android:gravity="center_horizontal"
         android:orientation="vertical">
 
@@ -34,7 +33,8 @@
             android:layout_width="90dp"
             android:layout_height="48dp"
             android:textColor="@color/cpb_white"
-            android:textSize="15dp"
+            android:textSize="12dp"
+            style="?android:attr/borderlessButtonStyle"
             app:cpb_textIdle="点 击 下 方"
             app:cpb_colorIndicator="@color/cpb_green"
             app:cpb_colorIndicatorBackground="@color/cpb_grey"
@@ -43,4 +43,4 @@
 
     </LinearLayout>
 
-</RelativeLayout>
+</LinearLayout>
