@@ -43,9 +43,12 @@ public class SettingFragment extends Fragment {
         mGyroscope.setZOrderOnTop(true);
 
         mDatabase = new Database(getContext());
-        Database.GyroscopeData data = mDatabase.getSettingData();
+        Database.GyroscopeData data = mDatabase.getQuestionRecord("轮到谁");
+        mGyroscope.setGyroscopeData(data);
         mSeekBar.setProgress(data.sectionsNum - MIN_SECTIONS_NUM);
         mSectionsNumText.setText("块数：" + data.sectionsNum);
+        mDatabase.updateSettingData(data.title, data.sectionsNum, data.sectionsAngle,
+                data.sectionsName, Integer.MAX_VALUE, false);
 
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override

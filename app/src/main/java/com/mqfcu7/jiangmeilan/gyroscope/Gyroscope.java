@@ -22,9 +22,11 @@ public class Gyroscope {
 
     private PointF mCenter;
     private int mRadius;
+    private String mTitle;
     private int mSectionsNum;
     private Line[] mSectionsLine;
     private float[] mSectionsAngle;
+    private String[] mSectionsName;
 
     private Line mArrowLine;
     private Line mArrowSubLine;
@@ -44,19 +46,30 @@ public class Gyroscope {
         for (int i = 0; i < sectionsNum; ++ i) {
             sectionsAngle[i] = angle;
         }
-        init(center, radius, sectionsNum, sectionsAngle, ARROW_START_ANGLE);
+        init(center, radius, "", sectionsNum, sectionsAngle, null, ARROW_START_ANGLE);
     }
 
-    public void init(PointF center, int radius, int sectionsNum, float[] sectionsAngle, float arrowAngle) {
+    public void init(PointF center,
+                     int radius,
+                     String title,
+                     int sectionsNum,
+                     float[] sectionsAngle,
+                     String[] sectionsName,
+                     float arrowAngle) {
         mCenter = center;
         mRadius = radius;
 
+        mTitle = title;
         mSectionsNum = sectionsNum;
         mSectionsLine = new Line[mSectionsNum];
         mSectionsAngle = new float[mSectionsNum];
+        mSectionsName = new String[mSectionsNum];
         for (int i = 0; i < mSectionsNum; ++ i) {
             mSectionsLine[i] = new Line();
             mSectionsAngle[i] = sectionsAngle[i];
+            if (sectionsName != null && sectionsName.length == mSectionsNum) {
+                mSectionsName[i] = sectionsName[i];
+            }
         }
         calcSectionsPosition();
 
@@ -130,11 +143,29 @@ public class Gyroscope {
         mSectionsLine = new Line[mSectionsNum];
         mSectionsAngle = new float[mSectionsNum];
         float angle = 360.0f / mSectionsNum;
+        mSectionsName = new String[mSectionsNum];
         for (int i = 0; i < mSectionsNum; ++ i) {
             mSectionsLine[i] = new Line();
             mSectionsAngle[i] = angle;
+            mSectionsName[i] = String.valueOf(i + 1);
         }
         calcSectionsPosition();
+    }
+
+    public void setNewTitle(String title, int sectionsNum, float[] sectionsAngle, String[] sectionsName) {
+        mTitle = title;
+        setSectionsNum(sectionsNum);
+        mSectionsName = new String[sectionsNum];
+        if (sectionsName != null && sectionsName.length == sectionsNum) {
+            for (int i = 0; i < sectionsNum; ++ i) {
+                mSectionsName[i] = sectionsName[i];
+            }
+        }
+        mSelectedSection = INVALID_SELECTED_SECTION;
+    }
+
+    public String getTitle() {
+        return mTitle;
     }
 
     public int getSectionsNum() {
@@ -142,6 +173,8 @@ public class Gyroscope {
     }
 
     public float[] getSectionsAngle() { return mSectionsAngle; }
+
+    public String[] getSectionsName() { return mSectionsName; }
 
     public int getArrowLineWidth() {
         return mArrowLineWidth;

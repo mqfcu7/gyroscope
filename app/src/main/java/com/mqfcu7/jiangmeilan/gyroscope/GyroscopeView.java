@@ -65,8 +65,8 @@ public class GyroscopeView extends View {
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        mGyroscope.init(new PointF(mBoardRect.centerX(), mBoardRect.centerY()), mBoardRect.width() / 2,
-                mGyroscopeData.sectionsNum, mGyroscopeData.sectionsAngle, mGyroscopeData.arrowAngle);
+        mGyroscope.init(new PointF(mBoardRect.centerX(), mBoardRect.centerY()), mBoardRect.width() / 2, mGyroscopeData.title,
+                mGyroscopeData.sectionsNum, mGyroscopeData.sectionsAngle, mGyroscopeData.sectionsName, mGyroscopeData.arrowAngle);
         mGyroscope.setSelectedSection(mGyroscopeData.selectedSection);
 
         RadialGradient gradient = new RadialGradient(10, 10, mBoardRect.width(),

@@ -7,12 +7,14 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.provider.BaseColumns;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Database extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "com.mqfcu7.jiangmeilan.gyroscope";
+    private static final String TABLE_QUESTION_NAME = "question";
     private static final String TABLE_HISTORY_NAME = "history";
     private static final String TABLE_SETTING_NAME = "setting";
     private static final String TABLE_GAME_NAME = "game";
@@ -20,6 +22,7 @@ public class Database extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
 
     public static class GyroscopeData {
+        public String title;
         public int sectionsNum;
         public float[] sectionsAngle;
         public String[] sectionsName = null;
@@ -36,7 +39,15 @@ public class Database extends SQLiteOpenHelper {
 
     private Context mContext;
 
+    private abstract class QuestionColumns implements BaseColumns {
+        public static final String TITLE = "title";
+        public static final String SECTIONS_NUM = "sections_num";
+        public static final String SECTIONS_ANGLE = "sections_angle";
+        public static final String SECTIONS_NAME = "sections_name";
+    }
+
     private abstract class HistoryColumns implements BaseColumns {
+        public static final String TITLE = "title";
         public static final String SECTIONS_NUM = "sections_num";
         public static final String SECTIONS_ANGLE = "sections_angle";
         public static final String SECTIONS_NAME = "sections_name";
@@ -47,6 +58,7 @@ public class Database extends SQLiteOpenHelper {
     }
 
     private abstract class SettingColumns implements BaseColumns {
+        public static final String TITLE = "title";
         public static final String SECTIONS_NUM = "sections_num";
         public static final String SECTIONS_ANGLE = "sections_angle";
         public static final String SECTIONS_NAME = "sections_name";
@@ -65,14 +77,37 @@ public class Database extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        createQuestionTable(db);
         createHistoryTable(db);
         createSettingTable(db);
         createGameTable(db);
     }
 
+    private void createQuestionTable(SQLiteDatabase db) {
+        db.execSQL("create table " + TABLE_QUESTION_NAME + " ("
+                + QuestionColumns._ID + " integer primary key,"
+                + QuestionColumns.TITLE + " text,"
+                + QuestionColumns.SECTIONS_NUM + " integer,"
+                + QuestionColumns.SECTIONS_ANGLE + " text,"
+                + QuestionColumns.SECTIONS_NAME + " text"
+                + ");");
+
+        db.execSQL("insert into " + TABLE_QUESTION_NAME + " values(0,'轮到谁',6,'60,60,60,60,60,60','1,2,3,4,5,6');");
+        db.execSQL("insert into " + TABLE_QUESTION_NAME + " values(1,'喜不喜欢',10,'60,60,60,60,60,60','喜欢,不喜欢,喜欢,不喜欢,喜欢,不喜欢,喜欢,不喜欢,喜欢,不喜欢');");
+        db.execSQL("insert into " + TABLE_QUESTION_NAME + " values(2,'ABCD',4,'90,90,90,90','A,B,C,D');");
+        db.execSQL("insert into " + TABLE_QUESTION_NAME + " values(3,'待会吃什么',8,'45,45,45,45,45,45,45,45','火锅,日料,川菜,港式,快餐,烤肉,东南亚菜,西餐');");
+        db.execSQL("insert into " + TABLE_QUESTION_NAME + " values(4,'颜色',6,'60,60,60,60,60,60','红,黄,蓝,绿,灰,紫');");
+        db.execSQL("insert into " + TABLE_QUESTION_NAME + " values(5,'学习',8,'45,45,45,45,45,45,45,45','语文,数学,英语,政治,物理,历史,生物,地理');");
+        db.execSQL("insert into " + TABLE_QUESTION_NAME + " values(6,'喝什么',9,'40,40,40,40,40,40,40,40,40','西瓜汁,玉米汁,橙汁,茶,可乐,雪碧,柠檬水,酸梅汁,啤酒');");
+        db.execSQL("insert into " + TABLE_QUESTION_NAME + " values(7,'看哪部电影',5,'72,72,72,72,72','我不是药神,邪不压正,动物世界,新大头儿子,超人总动员');");
+        db.execSQL("insert into " + TABLE_QUESTION_NAME + " values(8,'去哪玩',6,'60,60,60,60,60,60','密室逃脱,桌游,唱歌,电影,桑拿,酒吧');");
+        db.execSQL("insert into " + TABLE_QUESTION_NAME + " values(9,'酒吧',9,'40,40,40,40,40,40,40,40,40','选异性拥抱,下家唱,异性交杯酒,PASS,喝半杯,上家唱,全女士半杯,亲异性,全男士半杯');");
+    }
+
     private void createHistoryTable(SQLiteDatabase db) {
         db.execSQL("create table " + TABLE_HISTORY_NAME + " ("
                 + HistoryColumns._ID + " integer primary key,"
+                + QuestionColumns.TITLE + " text,"
                 + HistoryColumns.SECTIONS_NUM + " integer,"
                 + HistoryColumns.SECTIONS_ANGLE + " text,"
                 + HistoryColumns.SECTIONS_NAME + " text,"
@@ -86,13 +121,14 @@ public class Database extends SQLiteOpenHelper {
     private void createSettingTable(SQLiteDatabase db) {
         db.execSQL("create table " + TABLE_SETTING_NAME + " ("
                 + SettingColumns._ID + " integer primary key,"
+                + SettingColumns.TITLE + " text,"
                 + SettingColumns.SECTIONS_NUM + " integer,"
                 + SettingColumns.SECTIONS_ANGLE + " text,"
                 + SettingColumns.SECTIONS_NAME + " text,"
                 + SettingColumns.ARROW_ANGLE + " real"
                 + ");");
 
-        db.execSQL("insert into " + TABLE_SETTING_NAME + " values(0,6,'60,60,60,60,60,60','',290);");
+        db.execSQL("insert into " + TABLE_SETTING_NAME + " values(0,'轮到谁',6,'60,60,60,60,60,60','1,2,3,4,5,6',290);");
     }
 
     private void createGameTable(SQLiteDatabase db) {
@@ -110,6 +146,66 @@ public class Database extends SQLiteOpenHelper {
 
     }
 
+    public ArrayList<String> getQuestionTitle() {
+        ArrayList<String> result = new ArrayList<>();
+
+        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+        qb.setTables(TABLE_QUESTION_NAME);
+
+        Cursor c = null;
+        try {
+            SQLiteDatabase db = getReadableDatabase();
+            c = qb.query(db, null, null, null, null, null, null);
+            while (c.moveToNext()) {
+                String title = c.getString(c.getColumnIndex(QuestionColumns.TITLE));
+                result.add(title);
+            }
+        } finally {
+            if (c != null) {
+                c.close();
+            }
+        }
+        return result;
+    }
+
+    public GyroscopeData getQuestionRecord(String title) {
+        GyroscopeData result = null;
+
+        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+        qb.setTables(TABLE_QUESTION_NAME);
+        qb.appendWhere(QuestionColumns.TITLE + "='" + title + "'");
+
+        Cursor c = null;
+        try {
+            SQLiteDatabase db = getReadableDatabase();
+            c = qb.query(db, null, null, null, null, null, null);
+
+            if (c.moveToFirst()) {
+                result = new GyroscopeData();
+                result.title = title;
+                result.sectionsNum = c.getInt(c.getColumnIndex(QuestionColumns.SECTIONS_NUM));
+                result.sectionsAngle = parseSectionsAngle(c.getString(c.getColumnIndex(QuestionColumns.SECTIONS_ANGLE)));
+                result.sectionsName = parseSectionsName(c.getString(c.getColumnIndex(QuestionColumns.SECTIONS_NAME)));
+            }
+        } finally {
+            if (c != null) {
+                c.close();
+            }
+        }
+
+        return result;
+    }
+
+    public void updateQuestionRecord(int sectionsNum, float[] sectionsAngle, String[] sectionsName) {
+        ContentValues values = new ContentValues();
+        values.put(QuestionColumns.SECTIONS_NUM, sectionsNum);
+        values.put(QuestionColumns.SECTIONS_ANGLE, serializeSectionAngle(sectionsAngle));
+        values.put(QuestionColumns.SECTIONS_NAME, serializeSectionName(sectionsName));
+
+        SQLiteDatabase db = getWritableDatabase();
+        db.update(TABLE_QUESTION_NAME, values, QuestionColumns._ID + "=0", null);
+    }
+
     public GyroscopeData getSettingData() {
         GyroscopeData result = null;
 
@@ -122,6 +218,7 @@ public class Database extends SQLiteOpenHelper {
             c = qb.query(db, null, null, null, null, null, null);
             if (c.moveToFirst()) {
                 result = new GyroscopeData();
+                result.title = c.getString(c.getColumnIndex(SettingColumns.TITLE));
                 result.sectionsNum = c.getInt(c.getColumnIndex(SettingColumns.SECTIONS_NUM));
                 result.sectionsAngle = parseSectionsAngle(c.getString(c.getColumnIndex(SettingColumns.SECTIONS_ANGLE)));
                 result.sectionsName = parseSectionsName(c.getString(c.getColumnIndex(SettingColumns.SECTIONS_NAME)));
@@ -136,26 +233,49 @@ public class Database extends SQLiteOpenHelper {
         return result;
     }
 
-    public void updateSettingData(int sectionsNum, float[] sectionsAngle, float arrowAngle) {
+    public void updateSettingData(String title,
+                                  int sectionsNum,
+                                  float[] sectionsAngle,
+                                  String[] sectionsName,
+                                  float arrowAngle,
+                                  boolean isFromSetting) {
         ContentValues values = new ContentValues();
-        if (sectionsNum != Integer.MAX_VALUE) {
-            values.put(SettingColumns.SECTIONS_NUM, sectionsNum);
-        }
-        if (sectionsAngle != null) {
-            values.put(SettingColumns.SECTIONS_ANGLE, serializeSectionAngle(sectionsAngle));
-        }
-        if (arrowAngle != Integer.MAX_VALUE) {
-            values.put(SettingColumns.ARROW_ANGLE, arrowAngle);
-        }
-
         SQLiteDatabase db = getWritableDatabase();
-        db.update(TABLE_SETTING_NAME, values, SettingColumns._ID + "=0", null);
+
+        if (isFromSetting) {
+            values.put(SettingColumns.SECTIONS_NUM, sectionsNum);
+            values.put(SettingColumns.SECTIONS_ANGLE, serializeSectionAngle(sectionsAngle));
+            values.put(SettingColumns.SECTIONS_NAME, serializeSectionName(sectionsName));
+            db.update(TABLE_SETTING_NAME, values, SettingColumns._ID + "=0", null);
+            updateQuestionRecord(sectionsNum, sectionsAngle, sectionsName);
+        } else {
+            if (title != "") {
+                values.put(SettingColumns.TITLE, title);
+            }
+            if (sectionsNum != Integer.MAX_VALUE) {
+                values.put(SettingColumns.SECTIONS_NUM, sectionsNum);
+            }
+            if (sectionsAngle != null) {
+                values.put(SettingColumns.SECTIONS_ANGLE, serializeSectionAngle(sectionsAngle));
+            }
+            if (sectionsName != null && sectionsName.length == sectionsNum) {
+                values.put(SettingColumns.SECTIONS_NAME, serializeSectionName(sectionsName));
+            } else {
+                values.put(SettingColumns.SECTIONS_NAME, "");
+            }
+            if (arrowAngle != Integer.MAX_VALUE) {
+                values.put(SettingColumns.ARROW_ANGLE, arrowAngle);
+            }
+            db.update(TABLE_SETTING_NAME, values, SettingColumns._ID + "=0", null);
+        }
     }
 
     public void saveGyroscope(GyroscopeData data) {
         ContentValues values = new ContentValues();
+        values.put(HistoryColumns.TITLE, data.title);
         values.put(HistoryColumns.SECTIONS_NUM, data.sectionsNum);
         values.put(HistoryColumns.SECTIONS_ANGLE, serializeSectionAngle(data.sectionsAngle));
+        values.put(HistoryColumns.SECTIONS_NAME, serializeSectionName(data.sectionsName));
         values.put(HistoryColumns.ARROW_ANGLE, data.arrowAngle);
         values.put(HistoryColumns.SELECTED_SECTION, data.selectedSection);
         values.put(HistoryColumns.TIME, data.time);
@@ -177,6 +297,7 @@ public class Database extends SQLiteOpenHelper {
             c = qb.query(db, null, null, null, null, null, null);
             while (c.moveToNext()) {
                 GyroscopeData data = new GyroscopeData();
+                data.title = c.getString(c.getColumnIndex(HistoryColumns.TITLE));
                 data.sectionsNum = c.getInt(c.getColumnIndex(HistoryColumns.SECTIONS_NUM));
                 data.sectionsAngle = parseSectionsAngle(c.getString(c.getColumnIndex(HistoryColumns.SECTIONS_ANGLE)));
                 data.sectionsName = parseSectionsName(c.getString(c.getColumnIndex(HistoryColumns.SECTIONS_NAME)));
@@ -248,9 +369,23 @@ public class Database extends SQLiteOpenHelper {
 
     private String serializeSectionAngle(float[] angles) {
         String result = "";
-         for (int i = 0; i < angles.length; ++ i) {
+        for (int i = 0; i < angles.length; ++ i) {
             result += String.valueOf(angles[i]);
             if (i < angles.length - 1) {
+                result += ",";
+            }
+        }
+        return result;
+    }
+
+    private String serializeSectionName(String[] names) {
+        if (names == null) {
+            return "";
+        }
+        String result = "";
+        for (int i = 0; i < names.length; ++ i) {
+            result += names[i];
+            if (i < names.length - 1) {
                 result += ",";
             }
         }

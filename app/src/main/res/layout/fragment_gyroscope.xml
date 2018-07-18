@@ -5,10 +5,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal">
+
+        <org.apmem.tools.layouts.FlowLayout
+            android:id="@+id/title_flow_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+        </org.apmem.tools.layouts.FlowLayout>
+    </LinearLayout>
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="7" >
+        android:layout_weight="10" >
+
 
         <com.mqfcu7.jiangmeilan.gyroscope.GyroscopeSurfaceView
         android:id="@+id/gyroscope_surface_view"
@@ -24,7 +41,7 @@
         android:id="@+id/rotate_button_layout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="3"
+        android:layout_weight="4"
         android:gravity="center_horizontal"
         android:orientation="vertical">
 
@@ -34,8 +51,9 @@
             android:layout_height="48dp"
             android:textColor="@color/cpb_white"
             android:textSize="12dp"
+            android:gravity="top|center_horizontal"
             style="?android:attr/borderlessButtonStyle"
-            app:cpb_textIdle="点 击 下 方"
+            app:cpb_textIdle="按 住 下 方"
             app:cpb_colorIndicator="@color/cpb_green"
             app:cpb_colorIndicatorBackground="@color/cpb_grey"
             app:cpb_colorProgress="@color/cpb_white"

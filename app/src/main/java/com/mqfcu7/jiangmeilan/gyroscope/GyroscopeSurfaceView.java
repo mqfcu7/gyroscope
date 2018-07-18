@@ -11,7 +11,6 @@ import android.graphics.Shader;
 import android.os.Build;
 import android.os.Message;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -78,8 +77,8 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
         if (mGyroscopeData == null) {
             mGyroscopeData = mDatabase.getSettingData();
         }
-        mGyroscope.init(new PointF(mBoardRect.centerX(), mBoardRect.centerY()), mBoardRect.width() / 2,
-                mGyroscopeData.sectionsNum, mGyroscopeData.sectionsAngle, mGyroscopeData.arrowAngle);
+        mGyroscope.init(new PointF(mBoardRect.centerX(), mBoardRect.centerY()), mBoardRect.width() / 2, mGyroscopeData.title,
+                mGyroscopeData.sectionsNum, mGyroscopeData.sectionsAngle, mGyroscopeData.sectionsName, mGyroscopeData.arrowAngle);
         if (mGyroscopeData.selectedSection != Gyroscope.INVALID_SELECTED_SECTION) {
             mGyroscope.setSelectedSection(mGyroscopeData.selectedSection);
         }
@@ -127,7 +126,18 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
         }
 
         mGyroscope.setSectionsNum(num);
-        mDatabase.updateSettingData(num, mGyroscope.getSectionsAngle(), Integer.MAX_VALUE);
+        mDatabase.updateSettingData("", num, mGyroscope.getSectionsAngle(), mGyroscope.getSectionsName(), Integer.MAX_VALUE, true);
+
+        onDrawBoard();
+    }
+
+    public void setNewTitle(String title, int num, float[] sectionsAngles, String[] sectionsName) {
+        if (title.equals(mGyroscope.getTitle())) {
+            return;
+        }
+
+        mGyroscope.setNewTitle(title, num, sectionsAngles, sectionsName);
+        mDatabase.updateSettingData(title, num, mGyroscope.getSectionsAngle(), sectionsName, Integer.MAX_VALUE, false);
 
         onDrawBoard();
     }
@@ -192,7 +202,7 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
     private void onActionUpAndCancel(PointF point) {
         if (mIsTouchArrow) {
             if (mRecordEnable) {
-                mDatabase.updateSettingData(Integer.MAX_VALUE, null, mGyroscope.getArrowCurrentAngle());
+                mDatabase.updateSettingData("", Integer.MAX_VALUE, null, null, mGyroscope.getArrowCurrentAngle(), false);
             } else {
                 mDatabase.updateGameData(mGyroscope.getArrowCurrentAngle(), Integer.MAX_VALUE);
             }
@@ -253,7 +263,7 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
         }
 
         if (mRecordEnable) {
-            mDatabase.updateSettingData(Integer.MAX_VALUE, null, mGyroscope.getArrowCurrentAngle());
+            mDatabase.updateSettingData("", Integer.MAX_VALUE, null, null, mGyroscope.getArrowCurrentAngle(), false);
 
             Database.GyroscopeData data = new Database.GyroscopeData();
             data.sectionsNum = mGyroscope.getSectionsNum();
@@ -340,7 +350,7 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
     }
 
     private void drawSectionsName(Canvas canvas) {
-        if (mGyroscopeData.sectionsName == null || mGyroscopeData.sectionsName.length != mGyroscopeData.sectionsNum) {
+        if (mGyroscope.getSectionsName() == null || mGyroscope.getSectionsName().length != mGyroscope.getSectionsNum()) {
             return;
         }
 
@@ -350,20 +360,22 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
         paint.setAntiAlias(true);
         paint.setTextSize((int) (12*density+0.5));
         paint.setStrokeWidth(SECTION_LINE_WIDTH);
-        paint.setShadowLayer(5, 2, 2, 0x50000000);
         float startAngle = 90 + diff;
         float total = 0;
-        for (int i = 0; i < mGyroscopeData.sectionsNum; ++ i) {
+        for (int i = 0; i < mGyroscope.getSectionsNum(); ++ i) {
+            if (mGyroscope.getSectionsName()[i] == null) {
+                continue;
+            }
             canvas.rotate(startAngle, mBoardRect.centerX(), mBoardRect.centerY());
             total += startAngle;
-            if (mGyroscopeData.sectionsName[i].compareTo("0") == 0) {
+            if (mGyroscope.getSectionsName()[i].compareTo("0") == 0) {
                 paint.setColor(Color.BLACK);
             } else {
-                paint.setColor(Color.BLUE);
+                paint.setColor(0xFF361D2E);
             }
-            canvas.drawText(mGyroscopeData.sectionsName[i], mBoardRect.centerX() + mBoardRect.width() / 4 + 40, mBoardRect.centerY(), paint);
-            if (i < mGyroscopeData.sectionsNum - 1) {
-                startAngle = mGyroscopeData.sectionsAngle[i] / 2 + mGyroscopeData.sectionsAngle[i+1] / 2;
+            canvas.drawText(mGyroscope.getSectionsName()[i], mBoardRect.centerX() + mBoardRect.width() / 4 + 40, mBoardRect.centerY(), paint);
+            if (i < mGyroscope.getSectionsNum() - 1) {
+                startAngle = mGyroscope.getSectionsAngle()[i] / 2 + mGyroscope.getSectionsAngle()[i+1] / 2;
             }
         }
         canvas.rotate(-total, mBoardRect.centerX(), mBoardRect.centerY());
