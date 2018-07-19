@@ -2,13 +2,20 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.mqfcu7.jiangmeilan.gyroscope">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+
     <application
+        android:name=".App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <meta-data android:value="5b5056d7b27b0a3bde000132" android:name="UMENG_APPKEY"/>
         <activity android:name="com.mqfcu7.jiangmeilan.gyroscope.SplashActivity">
         </activity>
         <activity android:name="com.mqfcu7.jiangmeilan.gyroscope.MainActivity">
