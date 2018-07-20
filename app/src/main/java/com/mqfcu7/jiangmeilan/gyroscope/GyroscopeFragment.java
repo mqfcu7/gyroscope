@@ -15,6 +15,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.dd.CircularProgressButton;
+import com.iflytek.voiceads.AdError;
+import com.iflytek.voiceads.IFLYAdListener;
+import com.iflytek.voiceads.IFLYAdSize;
+import com.iflytek.voiceads.IFLYBannerAd;
 
 import org.apmem.tools.layouts.FlowLayout;
 
@@ -39,10 +43,13 @@ public class GyroscopeFragment extends Fragment {
     GyroscopeSurfaceView mGyroscope;
     @BindView(R.id.rotate_button)
     CircularProgressButton mRotateButton;
+    @BindView(R.id.gyroscope_banner_ad_layout)
+    LinearLayout mBannerAdLayout;
 
     Database mDatabase;
     ControlPadFragment mControlPad;
     List<TextView> mTitles;
+    private IFLYBannerAd bannerView;
 
     private ScheduledExecutorService mScheduledExecutor;
 
@@ -61,12 +68,18 @@ public class GyroscopeFragment extends Fragment {
         mGyroscope.setZOrderOnTop(true);
         mGyroscope.setControlPad(mControlPad);
 
+        createBannerAd(v);
+
         return v;
     }
 
     @Override
     public void onDestroyView() {
         unbinder.unbind();
+        if (bannerView != null) {
+            bannerView.destroy();
+            bannerView = null;
+        }
         super.onDestroyView();
     }
 
@@ -132,17 +145,20 @@ public class GyroscopeFragment extends Fragment {
             view.setLayoutParams(lp);
             view.setText(titles.get(i));
             view.setTextSize(14);
-            view.setOnClickListener(new View.OnClickListener() {
+            view.setOnTouchListener(new View.OnTouchListener() {
                 @Override
-                public void onClick(View v) {
-                    String title = ((TextView)v).getText().toString();
-                    Database.GyroscopeData data = mDatabase.getQuestionRecord(title);
-                    mGyroscope.setNewTitle(data.title, data.sectionsNum, data.sectionsAngle, data.sectionsName);
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                        String title = ((TextView)v).getText().toString();
+                        Database.GyroscopeData data = mDatabase.getQuestionRecord(title);
+                        mGyroscope.setNewTitle(data.title, data.sectionsNum, data.sectionsAngle, data.sectionsName);
 
-                    for (int i = 0; i < mTitles.size(); ++ i) {
-                        mTitles.get(i).setBackground(getResources().getDrawable(R.drawable.button_style));
+                        for (int i = 0; i < mTitles.size(); ++ i) {
+                            mTitles.get(i).setBackground(getResources().getDrawable(R.drawable.button_style));
+                        }
+                        v.setBackground(getResources().getDrawable(R.drawable.button_selected_style));
                     }
-                    v.setBackground(getResources().getDrawable(R.drawable.button_selected_style));
+                    return false;
                 }
             });
             mTitles.add(view);
@@ -150,4 +166,47 @@ public class GyroscopeFragment extends Fragment {
             mFlowLayout.addView(layout);
         }
     }
+
+    private void createBannerAd(View v) {
+        String adUnitId = "413F339B7BAB5A71F6120204DADD162C";
+
+        bannerView = IFLYBannerAd.createBannerAd(getContext(), adUnitId);
+        if (bannerView == null) return;
+        bannerView.setAdSize(IFLYAdSize.BANNER);
+
+        bannerView.loadAd(mAdListener);
+
+        mBannerAdLayout.removeAllViews();
+        mBannerAdLayout.addView(bannerView);
+    }
+
+    IFLYAdListener mAdListener = new IFLYAdListener() {
+        @Override
+        public void onAdReceive() {
+            if (bannerView != null) {
+                bannerView.showAd();
+            }
+        }
+
+        @Override
+        public void onAdFailed(AdError adError) {
+
+        }
+
+        @Override
+        public void onAdClick() {
+
+        }
+
+        @Override
+        public void onAdClose() {
+
+        }
+
+        @Override
+        public void onAdExposure() {
+
+        }
+
+    };
 }

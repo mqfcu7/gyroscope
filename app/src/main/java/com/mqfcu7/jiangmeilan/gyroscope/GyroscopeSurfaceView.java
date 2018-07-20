@@ -61,15 +61,17 @@ public class GyroscopeSurfaceView extends SurfaceView implements SurfaceHolder.C
         int heightSize = MeasureSpec.getSize(heightMeasureSpec);
 
         int size = widthSize;
-        if (heightMode == MeasureSpec.EXACTLY) {
+        if (widthMode == MeasureSpec.AT_MOST) {
             size = Math.min(widthSize, heightSize);
         }
 
-        setMeasuredDimension(size, size);
+        int paddingLeft = getPaddingLeft();
+        int paddingRight = getPaddingRight();
 
-        mBoardRect = new Rect(getPaddingLeft(), getPaddingLeft(),
-                size - getPaddingRight(),
-                size - getPaddingRight());
+        setMeasuredDimension(size, size - paddingLeft - paddingRight);
+
+        mBoardRect = new Rect(paddingLeft, 0,
+                size - paddingLeft, size - paddingLeft - paddingRight);
     }
 
     @Override

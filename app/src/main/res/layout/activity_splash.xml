@@ -1,22 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/cpb_white"
     android:orientation="vertical"
     >
 
-    <TextView
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="50dp"/>
+        android:layout_height="match_parent"
+        android:layout_above="@id/logo_layout"
+        >
+
+        <ImageView
+            android:id="@+id/splash_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/cpb_white"
+            android:scaleType="center"
+            />
+
+        <TextView
+            android:id="@+id/ad_flag_text"
+            android:visibility="invisible"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/splash_image"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:background="@color/colorPrimaryDark"
+            android:paddingHorizontal="5dp"
+            android:textColor="@color/cpb_white"
+            android:textSize="10dp"
+            android:text="广告"/>
+
+    </RelativeLayout>
 
 
     <LinearLayout
+        android:id="@+id/logo_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center">
+        android:background="@color/cpb_white"
+        android:layout_alignParentBottom="true"
+        android:paddingVertical="20dp"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/cpb_white"
+            >
+            <ImageView
+                android:id="@+id/rsplash_logo"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@color/cpb_white"
+                android:src="@drawable/ic_launcher_web"
+                />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/cpb_white"
+                android:layout_toRightOf="@id/rsplash_logo"
+                android:paddingLeft="10dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@color/cpb_white"
+                    android:textSize="20dp"
+                    android:textColor="#000000"
+                    android:text="转 盘"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@color/cpb_white"
+                    android:textColor="#454545"
+                    android:text="轻松做出选择!"
+                    />
+            </LinearLayout>
+        </RelativeLayout>
 
     </LinearLayout>
 
-</LinearLayout>
+</RelativeLayout>

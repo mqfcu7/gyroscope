@@ -6,6 +6,13 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.GET_TASKS"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_UPDATES" />
 
     <application
         android:name=".App"
@@ -16,15 +23,30 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <meta-data android:value="5b5056d7b27b0a3bde000132" android:name="UMENG_APPKEY"/>
-        <activity android:name="com.mqfcu7.jiangmeilan.gyroscope.SplashActivity">
-        </activity>
-        <activity android:name="com.mqfcu7.jiangmeilan.gyroscope.MainActivity">
+        <meta-data android:name="IFLYTEK_APPKEY_AD" android:value="5b455fd4"/>
+        <activity android:name="com.mqfcu7.jiangmeilan.gyroscope.SplashActivity" android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="com.mqfcu7.jiangmeilan.gyroscope.MainActivity" android:screenOrientation="portrait">
+        </activity>
+
+        <service android:name="com.iflytek.voiceads.update.DownloadService" />
+
+        <activity android:name="com.iflytek.voiceads.request.IFLYBrowser" android:screenOrientation="portrait" />
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.mqfcu7.jiangmeilan.gyroscope.fileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 
 </manifest>

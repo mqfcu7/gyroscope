@@ -7,8 +7,14 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import com.iflytek.voiceads.AdError;
+import com.iflytek.voiceads.IFLYAdListener;
+import com.iflytek.voiceads.IFLYAdSize;
+import com.iflytek.voiceads.IFLYBannerAd;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -25,8 +31,12 @@ public class SettingFragment extends Fragment {
     TextView mSectionsNumText;
     @BindView(R.id.seek_bar)
     SeekBar mSeekBar;
+    @BindView(R.id.setting_banner_ad_layout)
+    LinearLayout mBannerAdLayout;
 
     Database mDatabase;
+
+    private IFLYBannerAd bannerView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -69,15 +79,60 @@ public class SettingFragment extends Fragment {
             }
         });
 
+        createBannerAd(v);
+
         return v;
     }
 
     @Override
     public void onDestroyView() {
         unbinder.unbind();
+        if (bannerView != null) {
+            bannerView.destroy();
+            bannerView = null;
+        }
         super.onDestroyView();
     }
 
+    private void createBannerAd(View v) {
+        String adUnitId = "413F339B7BAB5A71F6120204DADD162C";
 
+        bannerView = IFLYBannerAd.createBannerAd(getContext(), adUnitId);
+        if (bannerView == null) return;
+        bannerView.setAdSize(IFLYAdSize.BANNER);
+        bannerView.loadAd(mAdListener);
+        mBannerAdLayout.removeAllViews();
+        mBannerAdLayout.addView(bannerView);
+    }
+
+    IFLYAdListener mAdListener = new IFLYAdListener() {
+        @Override
+        public void onAdReceive() {
+            if (bannerView != null) {
+                bannerView.showAd();
+            }
+        }
+
+        @Override
+        public void onAdFailed(AdError adError) {
+
+        }
+
+        @Override
+        public void onAdClick() {
+
+        }
+
+        @Override
+        public void onAdClose() {
+
+        }
+
+        @Override
+        public void onAdExposure() {
+
+        }
+
+    };
 
 }

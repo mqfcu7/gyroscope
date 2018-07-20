@@ -260,8 +260,6 @@ public class Database extends SQLiteOpenHelper {
             }
             if (sectionsName != null && sectionsName.length == sectionsNum) {
                 values.put(SettingColumns.SECTIONS_NAME, serializeSectionName(sectionsName));
-            } else {
-                values.put(SettingColumns.SECTIONS_NAME, "");
             }
             if (arrowAngle != Integer.MAX_VALUE) {
                 values.put(SettingColumns.ARROW_ANGLE, arrowAngle);
