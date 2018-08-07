@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.provider.BaseColumns;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -99,7 +98,7 @@ public class Database extends SQLiteOpenHelper {
         db.execSQL("insert into " + TABLE_QUESTION_NAME + " values(4,'颜色',6,'60,60,60,60,60,60','红,黄,蓝,绿,灰,紫');");
         db.execSQL("insert into " + TABLE_QUESTION_NAME + " values(5,'学习',8,'45,45,45,45,45,45,45,45','语文,数学,英语,政治,物理,历史,生物,地理');");
         db.execSQL("insert into " + TABLE_QUESTION_NAME + " values(6,'喝什么',9,'40,40,40,40,40,40,40,40,40','西瓜汁,玉米汁,橙汁,茶,可乐,雪碧,柠檬水,酸梅汁,啤酒');");
-        db.execSQL("insert into " + TABLE_QUESTION_NAME + " values(7,'看哪部电影',5,'72,72,72,72,72','我不是药神,邪不压正,动物世界,新大头儿子,超人总动员');");
+        db.execSQL("insert into " + TABLE_QUESTION_NAME + " values(7,'看哪部电影',5,'72,72,72,72,72','我不是药神,西虹市首富,小偷家族,风语咒,狄仁杰');");
         db.execSQL("insert into " + TABLE_QUESTION_NAME + " values(8,'去哪玩',6,'60,60,60,60,60,60','密室逃脱,桌游,唱歌,电影,桑拿,酒吧');");
         db.execSQL("insert into " + TABLE_QUESTION_NAME + " values(9,'酒吧',9,'40,40,40,40,40,40,40,40,40','选异性拥抱,下家唱,异性交杯酒,PASS,喝半杯,上家唱,全女士半杯,亲异性,全男士半杯');");
     }

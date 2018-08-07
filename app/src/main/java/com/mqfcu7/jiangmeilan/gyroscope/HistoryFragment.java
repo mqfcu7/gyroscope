@@ -6,7 +6,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -82,7 +81,6 @@ public class HistoryFragment extends Fragment {
 
         public HistoryAdapter(List<Database.GyroscopeData> gyroscopes) {
             mGyroscopes = gyroscopes;
-            Log.d("TAG", "size: " + mGyroscopes.size());
         }
 
         @NonNull
@@ -139,7 +137,7 @@ public class HistoryFragment extends Fragment {
     }
 
     private void createBannerAd(View v) {
-        String adUnitId = "413F339B7BAB5A71F6120204DADD162C";
+        String adUnitId = "883375EA675C2F1550FF04104CDCBD67";
 
         bannerView = IFLYBannerAd.createBannerAd(getContext(), adUnitId);
         if (bannerView == null) return;
@@ -177,5 +175,16 @@ public class HistoryFragment extends Fragment {
 
         }
 
+        @Override
+        public void onCancel() {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public void onConfirm() {
+            // TODO Auto-generated method stub
+
+        }
     };
 }
