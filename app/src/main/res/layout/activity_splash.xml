@@ -32,7 +32,7 @@
             android:paddingHorizontal="5dp"
             android:textColor="@color/cpb_white"
             android:textSize="10dp"
-            android:text="广告"/>
+            android:text=""/>
 
     </RelativeLayout>
 
